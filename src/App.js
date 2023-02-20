@@ -1,16 +1,29 @@
-import logo from './logo.svg';
-import './App.css';
+
 import 'antd/dist/reset.css';
-import { Button, Layout } from 'antd';
+import './App.css';
 // import IndexMenu from './component/Menu/indexMenu';
-import MenuRoute from './Component/Menu/MenuRoute';
 import LayoutApp from './Component/LayoutApp';
 
+import { getAnalytics } from "firebase/analytics";
+import { initializeApp } from "firebase/app";
+import { getDatabase, ref, set } from "firebase/database";
+import { firebaseConfig } from './Constant';
 function App() {
+
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app)
+  function writeUserData(userId, name, email) {
+    const db = getDatabase()
+    const refers = ref(db, 'users/' + userId)
+    set(refers, {
+      username: name,
+      email: email,
+    })
+  }
+
+  writeUserData("CamCam2", "Son Pham", "son.phamthanh97")
   return (
     <div className="App">
-       {/* <Button type="primary">Button</Button> */}
-       {/* <MenuRoute/> */}
        <LayoutApp/>
     </div>
   );
