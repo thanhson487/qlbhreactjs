@@ -1,15 +1,14 @@
-import React from 'react'
+import React, { useState } from 'react'
 import MenuRoute from './Menu/MenuRoute'
 import { Menu, Layout, theme } from 'antd'
+import Home from './Home';
+import Product from "./Product"
 // import { Breadcrumb, Layout, theme } from 'antd';
 
 const { Header, Content, Sider } = Layout
 function LayoutApp() {
-  const items =['1','2','3']
-  const items1 = ['1', '2', '3'].map((key) => ({
-  key,
-  label: `nav ${key}`,
-}));
+const [componentActive,setActive] = useState('/san-pham');
+
   return (
     
     <div >
@@ -20,7 +19,7 @@ function LayoutApp() {
         </Header>
         <Layout>
           <Sider
-            width={200}
+            width={250}
             style={{
               background: 'gray',
               height:'100%',
@@ -28,19 +27,8 @@ function LayoutApp() {
             collapsed={false}
               defaultCollapsed={false}
           >
-            {/* <MenuRoute/> */}
-            {/* <Menu
-              mode="inline"
-              defaultSelectedKeys={['1']}
-              defaultOpenKeys={['sub1']}
-              style={{
-                height: '100%',
-                borderRight: 0,
+              <MenuRoute setActive = {setActive} />
 
-              }}
-            > */}
-              <MenuRoute />
-            {/* </Menu> */}
           </Sider>
           <Layout
             style={{
@@ -49,14 +37,14 @@ function LayoutApp() {
           >
             <Content
               style={{
-                padding: 24,
+                padding: 4,
                 margin: 0,
-                // minHeight: 280,
-                //   background: colorBgContainer,
+                
                 background: 'white',
               }}
             >
-              Content
+             {componentActive ==='/home'&&<Home />}
+                {componentActive ==='/san-pham'&&<Product />}
             </Content>
           </Layout>
         </Layout>
