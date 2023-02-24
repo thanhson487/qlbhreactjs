@@ -5,7 +5,11 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import styled from "styled-components";
 import useForm from "../../Common/useForm";
-import { formatCurrency } from "./../../Common";
+import {
+  formatCurrency,
+  formatPriceRuleListAssets,
+  formatNumberNav,
+} from "./../../Common";
 import AddProductDialog from "./AddProductDialog";
 import ListingSkeletonTable from "../../Common/ListingSkeletonTable";
 const { Title } = Typography;
@@ -43,7 +47,9 @@ function Product() {
       align: "center",
       render: (value) => {
         return (
-          <div style={{ textAlign: "right" }}>{formatCurrency(value)}</div>
+          <div style={{ textAlign: "right" }}>
+            {formatPriceRuleListAssets(formatNumberNav(value.toString()))}
+          </div>
         );
       },
     },
@@ -54,7 +60,9 @@ function Product() {
       align: "center",
       render: (value) => {
         return (
-          <div style={{ textAlign: "right" }}>{formatCurrency(value)}</div>
+         <div style={{ textAlign: "right" }}>
+            {formatPriceRuleListAssets(formatNumberNav(value.toString()))}
+          </div>
         );
       },
     },
@@ -106,9 +114,9 @@ function Product() {
       const refers = ref(db, "product/" + id);
       set(refers, {
         id,
-        price,
         productName,
-        total: total,
+        price: parseInt(price),
+        total: parseInt(total),
       });
 
       setDialogAddProduct(false);
