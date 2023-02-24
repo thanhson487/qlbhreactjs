@@ -23,11 +23,10 @@ function getItem(label, key, icon, children, type) {
 const items = [
   getItem('Trang chủ', '/home', <HomeOutlined />),
   getItem('Sản phẩm', '/san-pham', <ShoppingCartOutlined />),
-  getItem('Nhập kho', '3', <ScanOutlined />),
-
- 
+  getItem('Nhập kho', '/nhap-kho', <ScanOutlined />),
 ];
-function MenuRoute({setActive}) {
+function MenuRoute() {
+  const navigate = useNavigate()
     const [collapsed, setCollapsed] = useState(false);
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);
@@ -35,7 +34,8 @@ function MenuRoute({setActive}) {
 
 
   const handleClickMenu = ({ item, key, keyPath, domEvent }) =>{
-setActive(key)
+    
+navigate(key)
   }
   return (
     <div style={{

@@ -28,7 +28,6 @@ const [componentActive,setActive] = useState('/san-pham');
               defaultCollapsed={false}
           >
               <MenuRoute setActive = {setActive} />
-
           </Sider>
           <Layout
             style={{
