@@ -112,7 +112,7 @@ function Warehouse() {
                 },
               ]}
             >
-              <Selects option={optionSelectProduct} onChange={onChanges} />
+              <Selects option={optionSelectProduct} onChange={onChanges} placeholder = "Mã sản phẩm"/>
             </Form.Item>
           </Col>
           <Col>

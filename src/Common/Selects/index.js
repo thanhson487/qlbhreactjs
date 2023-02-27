@@ -2,7 +2,7 @@ import React from 'react';
 import { Select } from 'antd';
 
 const { Option } = Select;
-export default function Selects({ onChange, queryList,option }) {
+export default function Selects({ onChange, queryList,option,placeholder }) {
  
   const handleChange = (value) => {
     if (onChange) {
@@ -14,7 +14,7 @@ export default function Selects({ onChange, queryList,option }) {
   };
 
   return (
-    <Select onChange={handleChange} placeholder="Loại yêu cầu" allowClear>
+    <Select onChange={handleChange} placeholder={placeholder} allowClear>
       { option.map(({ label, value }) => (
         <Option key={value} value={value}>
           {label}

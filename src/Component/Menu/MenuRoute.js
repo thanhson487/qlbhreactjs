@@ -21,7 +21,7 @@ function getItem(label, key, icon, children, type) {
   };
 }
 const items = [
-  getItem('Trang chủ', '/home', <HomeOutlined />),
+  getItem('Trang chủ', '/', <HomeOutlined />),
   getItem('Sản phẩm', '/san-pham', <ShoppingCartOutlined />),
   getItem('Nhập kho', '/nhap-kho', <ScanOutlined />),
 ];

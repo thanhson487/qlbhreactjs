@@ -62,7 +62,7 @@ function App() {
               }}
             >
               <Routes>
-                <Route path="/home" element={<Home />} />
+                <Route path="/" element={<Home />} />
                 <Route path="/san-pham" element={<Product />} />
                 <Route path = "/nhap-kho" element = {<Warehouse />} />
               </Routes>
