@@ -5,6 +5,7 @@ import {
   MailOutlined,
   RightOutlined,
   ScanOutlined,
+  PlusSquareOutlined,
   ShoppingCartOutlined
 } from '@ant-design/icons';
 import { Menu } from 'antd';
@@ -24,6 +25,7 @@ const items = [
   getItem('Trang chủ', '/', <HomeOutlined />),
   getItem('Sản phẩm', '/san-pham', <ShoppingCartOutlined />),
   getItem('Nhập kho', '/nhap-kho', <ScanOutlined />),
+  getItem('Tạo đơn hàng', '/tao-don-hang', <PlusSquareOutlined />),
 ];
 function MenuRoute() {
   const navigate = useNavigate()
@@ -34,8 +36,8 @@ function MenuRoute() {
 
 
   const handleClickMenu = ({ item, key, keyPath, domEvent }) =>{
-    
-navigate(key)
+    console.log(key);
+  navigate(key)
   }
   return (
     <div style={{

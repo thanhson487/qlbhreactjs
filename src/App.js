@@ -12,6 +12,7 @@ import Home from "./Component/Home";
 import MenuRoute from "./Component/Menu/MenuRoute";
 import Product from "./Component/Product";
 import Warehouse from "./Component/Warehouse";
+import CreateOrder from "./Component/CreateOrder/CreateOrder";
 // import { Breadcrumb, Layout, theme } from 'antd';
 const firebaseConfig = {
   apiKey: "AIzaSyC_ATO3kV5OuuzZsVAcfECgASvBbmV7mRw",
@@ -65,6 +66,7 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/san-pham" element={<Product />} />
                 <Route path = "/nhap-kho" element = {<Warehouse />} />
+                <Route path = "/tao-don-hang" element={<CreateOrder />} />
               </Routes>
             </Content>
           </Layout>
