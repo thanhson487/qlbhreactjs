@@ -36,7 +36,7 @@ function MenuRoute() {
 
 
   const handleClickMenu = ({ item, key, keyPath, domEvent }) =>{
-    console.log(key);
+
   navigate(key)
   }
   return (

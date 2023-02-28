@@ -3,28 +3,39 @@ export const validateEmty = (value) => {
     return Promise.resolve();
   }
 
-  return Promise.reject(new Error('Vui lòng nhập thông tin'));
+  return Promise.reject(new Error("Vui lòng nhập thông tin"));
+};
+export const validateNumbers = (value) => {
+ 
+  if(value.length ===0){
+     return Promise.reject(new Error("Không để trống thông tin"));
+  }
+  if (value.match(/^[0-9]*$/g)!==null) {
+    return Promise.resolve();
+  }
+
+  return Promise.reject(new Error("Không được nhập chữ"));
 };
 export const formatCurrency = (value) => {
-  if (!value) return '';
-  if (!value.match(/[0-9]/g)) return '';
-  const reverseString = value.match(/[0-9]/g).reverse().join('');
+  if (!value) return "";
+  if (!value.match(/[0-9]/g)) return "";
+  const reverseString = value.match(/[0-9]/g).reverse().join("");
   return reverseString
     .match(/.{1,3}/g)
-    .join(',')
-    .split('')
+    .join(",")
+    .split("")
     .reverse()
-    .join('');
+    .join("");
 };
 export const formatNumberNav = (value) => {
-  if (!value) return '';
-  return Number(value.replaceAll(/,/g, ''));
+  if (!value) return "";
+  return Number(value.replaceAll(/,/g, ""));
 };
 export const formatMoney = (num) => {
-  if (num === undefined || num === null) return '';
+  if (num === undefined || num === null) return "";
   return Number(num)
     .toFixed()
-    .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$&,'); // NOSONAR
+    .replace(/(\d)(?=(\d{3})+(?!\d))/g, "$&,"); // NOSONAR
 };
 
 export const formatPriceRuleListAssets = (value) => {
@@ -45,7 +56,7 @@ const formatValueCurrency = (absValue) => {
   }
   if (absValue >= 1000000000000) {
     return `${(Math.round((absValue / 1000000000000) * 100) / 100).toFixed(
-      2,
+      2
     )}k tỷ`;
   }
   return 0;
