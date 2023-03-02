@@ -1,12 +1,10 @@
-import { DeleteOutlined } from "@ant-design/icons";
 import { Button, Col, Form, Input, Select, Typography } from "antd";
-import { get, getDatabase, ref, remove, set,update } from "firebase/database";
+import { get, getDatabase, ref, update } from "firebase/database";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import styled from "styled-components";
 import useForm from "../../Common/useForm";
-import { formatCurrency, validateEmty } from "./../../Common";
-import CustomSelects from "../../Common/Selects";
+import { validateEmty } from "./../../Common";
 const { Title } = Typography;
 function Warehouse() {
   const [db, setDb] = useState();
@@ -28,19 +26,19 @@ function Warehouse() {
       (parseInt(payload.total) * parseInt(payload.price) +
         product.total * product.price) /
       total;
-       const refers = ref(db, "product/" + payload.id);
-       update(refers,{
-        ...product,
-        price: price.toFixed(2),
-        total: total
-       }).then(() =>{
-         toast.success("Thêm thành công", {
-          position: "top-right",
-          autoClose: 2000,
-          theme: "light",
-        });
-          formList.resetFields()
-       })
+    const refers = ref(db, "product/" + payload.id);
+    update(refers, {
+      ...product,
+      price: price.toFixed(2),
+      total: total,
+    }).then(() => {
+      toast.success("Thêm thành công", {
+        position: "top-right",
+        autoClose: 2000,
+        theme: "light",
+      });
+      formList.resetFields();
+    });
   }, [payload]);
 
   const fetchData = () => {
@@ -81,9 +79,8 @@ function Warehouse() {
     setOptionSelectProduct(select);
   }, [data]);
   const onChanges = () => {
-    const id = formList.getFieldValue("id")
-    const product = data.filter((item) =>item.id ===id)[0]
-    
+    const id = formList.getFieldValue("id");
+    const product = data.filter((item) => item.id === id)[0];
     formList.setFieldsValue({
       productName: product.productName,
     });
@@ -112,7 +109,24 @@ function Warehouse() {
                 },
               ]}
             >
-              <CustomSelects option={optionSelectProduct} onChange={onChanges} placeholder = "Mã sản phẩm"/>
+              <Select
+                onChange={onChanges}
+                placeholder="Mã sản phẩm"
+                allowClear
+                showSearch
+                optionFilterProp="lable"
+                filterOption={(input, option) => {
+                  return (option?.value ?? "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase());
+                }}
+              >
+                {optionSelectProduct.map((item) => (
+                  <Select.Option key={item.id} value={item.value}>
+                    {item.label}
+                  </Select.Option>
+                ))}
+              </Select>
             </Form.Item>
           </Col>
           <Col>

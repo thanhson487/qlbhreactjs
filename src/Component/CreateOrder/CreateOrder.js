@@ -6,6 +6,7 @@ import useForm from "../../Common/useForm";
 import { get, getDatabase, ref, remove, set, update } from "firebase/database";
 import { nanoid } from "nanoid";
 import {ClockCircleOutlined, RedoOutlined,CheckCircleOutlined} from "@ant-design/icons"
+import FillterTable from "./FillterTable";
 function CreateOrder() {
   const { formList, onSubmitForm, resetForm, payload } = useForm();
 
@@ -128,8 +129,8 @@ function CreateOrder() {
       render:(text,record)=>{
         switch(record?.status){
           case 'waitting': return <ClockCircleOutlined onClick={()=>{setOpen(true); setFix(true);setItemProduct(record)}} />
-          case 'sending':return <RedoOutlined  onClick={()=>{setOpen(true); setFix(true);setItemProduct(record)}} />
-          case 'success': return <CheckCircleOutlined onClick={()=>{setOpen(true); setFix(true);setItemProduct(record)}} />
+          case 'sending':return <RedoOutlined />
+          case 'success': return <CheckCircleOutlined />
         }
         return( <div onClick={()=>{console.log(1);}} >{record?.status}</div>)
         // console.log(record);
@@ -147,6 +148,7 @@ function CreateOrder() {
           Tạo đơn hàng
         </Button>
       </CustomButton>
+      <FillterTable />
       <AddOrder
         open={open}
         formList={formList}
