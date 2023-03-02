@@ -13,9 +13,6 @@ import { optionChannel } from "../../Common/constant";
 const dateFormat = "DD/MM/YYYY";
 const dateFormatList = ["DD/MM/YYYY", "DD/MM/YY", "DD-MM-YYYY", "DD-MM-YY"];
 
-
-
-
 function AddOrder({
   open,
   formList,
@@ -25,7 +22,9 @@ function AddOrder({
   fix,
   itemProduct,
 }) {
-   const data1 = dayjs(dayjs('20/11/2022',"DD/MM/YYYY").format("YYYY-MM-DD")).valueOf()
+  const data1 = dayjs(
+    dayjs("20/11/2022", "DD/MM/YYYY").format("YYYY-MM-DD")
+  ).valueOf();
   const [data, setData] = useState([]);
 
   const [optionSelectProduct, setOptionSelectProduct] = useState([]);
@@ -34,9 +33,11 @@ function AddOrder({
     const refers = ref(db, "product/");
     get(refers)
       .then((snapshot) => {
-        const value = snapshot.val();
-        if (value) {
-          const arrValue = Object.values(value);
+        const value1 = snapshot.val();
+        // console.log(value);
+
+        if (value1) {
+          const arrValue = Object.values(value1);
 
           setData([...arrValue]);
         } else {
@@ -93,7 +94,7 @@ function AddOrder({
     // delete cloneItem?.date;
     formList.setFieldsValue({
       ...cloneItem,
-      date: dayjs(cloneItem.date)
+      date: dayjs(cloneItem.date),
     });
   }, [fix]);
   return (
@@ -296,7 +297,6 @@ function AddOrder({
                   .toLowerCase()
                   .includes(input.toLowerCase());
               }}
-              
             >
               {[
                 {

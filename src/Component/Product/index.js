@@ -60,7 +60,7 @@ function Product() {
       align: "center",
       render: (value) => {
         return (
-         <div style={{ textAlign: "right" }}>
+          <div style={{ textAlign: "right" }}>
             {formatPriceRuleListAssets(formatNumberNav(value.toString()))}
           </div>
         );

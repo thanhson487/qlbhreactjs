@@ -23,14 +23,29 @@ function CreateOrder() {
 
   useEffect(() => {
     if (!payload) return;
-    const id = nanoid();
-    const refers = ref(db, "order/" + id);
-    set(refers, {
-      ...payload,
-    }).then(() => {
+   
+    if(!fix){
+       const id = nanoid();
+      const refers = ref(db, "order/" + id);
+      set(refers, {
+        ...payload,
+      }).then(() => {
       setOpen(false);
       formList.resetFields();
     });
+    }else{
+      const id=itemProduct?.id
+      const refers = ref(db, "order/" + id);
+      update(refers, {
+        ...payload,
+      }).then(() => {
+      setOpen(false);
+      formList.resetFields();
+      setItemProduct({})
+      setFix(false)
+    });
+    }
+    
 
     fetchDataTable();
 
@@ -43,9 +58,14 @@ function CreateOrder() {
       .then((snapshot) => {
         const value = snapshot.val();
         if (value) {
-          const arrValue = Object.values(value);
-
-          setDataTable([...arrValue]);
+          const data=[]
+           for (const [key, value1] of Object.entries(value)) {
+            let arr={}
+            arr={id:key,...value1}
+            data.push(arr)
+          }
+          console.log(data);
+          setDataTable([...data]);
         } else {
           setDataTable([]);
         }
@@ -129,8 +149,8 @@ function CreateOrder() {
       render:(text,record)=>{
         switch(record?.status){
           case 'waitting': return <ClockCircleOutlined onClick={()=>{setOpen(true); setFix(true);setItemProduct(record)}} />
-          case 'sending':return <RedoOutlined />
-          case 'success': return <CheckCircleOutlined />
+          case 'sending':return <RedoOutlined  onClick={()=>{setOpen(true); setFix(true);setItemProduct(record)}} />
+          case 'success': return <CheckCircleOutlined onClick={()=>{setOpen(true); setFix(true);setItemProduct(record)}} />
         }
         return( <div onClick={()=>{console.log(1);}} >{record?.status}</div>)
         // console.log(record);
