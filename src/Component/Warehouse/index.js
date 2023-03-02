@@ -1,12 +1,12 @@
 import { DeleteOutlined } from "@ant-design/icons";
-import { Button, Col, Form, Input, Typography } from "antd";
+import { Button, Col, Form, Input, Select, Typography } from "antd";
 import { get, getDatabase, ref, remove, set,update } from "firebase/database";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import styled from "styled-components";
 import useForm from "../../Common/useForm";
 import { formatCurrency, validateEmty } from "./../../Common";
-import Selects from "./../../Common/Selects";
+import CustomSelects from "../../Common/Selects";
 const { Title } = Typography;
 function Warehouse() {
   const [db, setDb] = useState();
@@ -112,7 +112,7 @@ function Warehouse() {
                 },
               ]}
             >
-              <Selects option={optionSelectProduct} onChange={onChanges} placeholder = "Mã sản phẩm"/>
+              <CustomSelects option={optionSelectProduct} onChange={onChanges} placeholder = "Mã sản phẩm"/>
             </Form.Item>
           </Col>
           <Col>

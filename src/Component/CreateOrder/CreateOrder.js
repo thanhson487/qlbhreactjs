@@ -5,6 +5,7 @@ import AddOrder from "./AddOrder";
 import useForm from "../../Common/useForm";
 import { get, getDatabase, ref, remove, set, update } from "firebase/database";
 import { nanoid } from "nanoid";
+import {ClockCircleOutlined, RedoOutlined,CheckCircleOutlined} from "@ant-design/icons"
 function CreateOrder() {
   const { formList, onSubmitForm, resetForm, payload } = useForm();
 
@@ -12,6 +13,8 @@ function CreateOrder() {
   const [db, setDb] = useState();
   const [dataTable,setDataTable] = useState([])
   const [loading,setLoading]= useState(false)
+  const [fix,setFix]=useState(false)
+  const [itemProduct,setItemProduct] = useState({})
   useEffect(() => {
     const db = getDatabase();
     setDb(db);
@@ -29,6 +32,7 @@ function CreateOrder() {
     });
 
     fetchDataTable();
+
   }, [payload]);
   const fetchDataTable = () => {
 
@@ -54,7 +58,7 @@ function CreateOrder() {
 
   };
 
-
+// console.log(dataTable);
 
  useEffect(() => {
     if (!db) return;
@@ -63,8 +67,8 @@ function CreateOrder() {
   const columns = [
     {
       title: "Mã sản phẩm",
-      dataIndex: "id",
-      key: "id",
+      dataIndex: "idProduct",
+      key: "idProduct",
       align: "center",
     },
     {
@@ -73,13 +77,19 @@ function CreateOrder() {
       key: "productName",
       align: "center",
     },
-
     {
-      title: "Số lượng",
-      dataIndex: "total",
-      key: "total",
+      title: "Ngày bán",
+      dataIndex: "date",
+      key: "date",
       align: "center",
     },
+     {
+      title: "Tên Khách Hàng",
+      dataIndex: "customerName",
+      key: "customerName",
+      align: "center",
+    },
+    
     {
       title: "Giá sản phẩm",
       dataIndex: "price",
@@ -87,16 +97,53 @@ function CreateOrder() {
       align: "center",
     },
     {
-      title: "Action",
-      dataIndex: "action",
-      key: "action",
+      title: "Phụ phí",
+      dataIndex: "fee",
+      key: "fee",
       align: "center",
     },
+    {
+      title: "Số lượng",
+      dataIndex: "quantity",
+      key: "quantity",
+      align: "center",
+    },
+    {
+      title: "Tổng tiền",
+      dataIndex: "total",
+      key: "total",
+      align: "center",
+    },
+     {
+      title: "Kênh bán",
+      dataIndex: "chanel",
+      key: "chanel",
+      align: "center",
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "status",
+      key: "status",
+      align: "center",
+      render:(text,record)=>{
+        switch(record?.status){
+          case 'waitting': return <ClockCircleOutlined onClick={()=>{setOpen(true); setFix(true);setItemProduct(record)}} />
+          case 'sending':return <RedoOutlined  onClick={()=>{setOpen(true); setFix(true);setItemProduct(record)}} />
+          case 'success': return <CheckCircleOutlined onClick={()=>{setOpen(true); setFix(true);setItemProduct(record)}} />
+        }
+        return( <div onClick={()=>{console.log(1);}} >{record?.status}</div>)
+        // console.log(record);
+      }
+
+    },
   ];
+  const handleFixStatus=()=>{
+
+  }
   return (
     <div>
       <CustomButton>
-        <Button type="primary" onClick={() => setOpen(!open)}>
+        <Button type="primary" onClick={() => setOpen(true)}>
           Tạo đơn hàng
         </Button>
       </CustomButton>
@@ -107,6 +154,8 @@ function CreateOrder() {
         resetForm={resetForm}
         setOpen={setOpen}
         db={db}
+        fix={fix}
+        itemProduct={itemProduct}
       />
       <StyledTable
         columns={columns}

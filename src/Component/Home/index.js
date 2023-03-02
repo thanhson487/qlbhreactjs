@@ -1,5 +1,5 @@
-import { Card, Space, Col, Row } from "antd";
-import Selects from "../../Common/Selects";
+import { Card, Space, Col, Row, Select } from "antd";
+import CustomSelects from "../../Common/Selects";
 function Home() {
   const option = [
     {
@@ -57,7 +57,7 @@ function Home() {
         <Col span={8}>
           <Card title="Doanh thu" size="large">
             <p>
-              <Selects
+              <CustomSelects
                 option={option}
                 onChange={onChanges}
                 placeholder={"Thời gian"}

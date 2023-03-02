@@ -1,4 +1,5 @@
 import { Button, DatePicker, Form, Input, Modal, Select } from "antd";
+import dayjs from "dayjs";
 import { get, ref } from "firebase/database";
 import { isEmpty } from "lodash";
 import React, { useEffect, useState } from "react";
@@ -9,20 +10,27 @@ import {
   validateNumbers,
 } from "../../Common";
 import { optionChannel } from "../../Common/constant";
-import Selects from "./../../Common/Selects";
-import dayjs from "dayjs";
 const dateFormat = "DD/MM/YYYY";
 const dateFormatList = ["DD/MM/YYYY", "DD/MM/YY", "DD-MM-YYYY", "DD-MM-YY"];
-function AddOrder({ open, formList, onSubmitForm, setOpen,db }) {
- const data1 = dayjs(dayjs('20/11/2022',"DD/MM/YYYY").format("YYYY-MM-DD")).valueOf()
 
+
+
+
+function AddOrder({
+  open,
+  formList,
+  onSubmitForm,
+  setOpen,
+  db,
+  fix,
+  itemProduct,
+}) {
+   const data1 = dayjs(dayjs('20/11/2022',"DD/MM/YYYY").format("YYYY-MM-DD")).valueOf()
   const [data, setData] = useState([]);
 
   const [optionSelectProduct, setOptionSelectProduct] = useState([]);
 
- 
   const fetchData = () => {
-
     const refers = ref(db, "product/");
     get(refers)
       .then((snapshot) => {
@@ -37,8 +45,7 @@ function AddOrder({ open, formList, onSubmitForm, setOpen,db }) {
       })
       .catch((err) => {
         console.error(err);
-      })
-     
+      });
   };
   useEffect(() => {
     if (!db) return;
@@ -55,7 +62,7 @@ function AddOrder({ open, formList, onSubmitForm, setOpen,db }) {
     });
     setOptionSelectProduct(select);
   }, [data]);
-  const onChanges = () => {
+  const onChanges = (value) => {
     const id = formList.getFieldValue("idProduct");
     const product = data.filter((item) => item.id === id)[0];
     formList.setFieldsValue({
@@ -80,6 +87,15 @@ function AddOrder({ open, formList, onSubmitForm, setOpen,db }) {
       total: formatPriceRuleListAssets(formatNumberNav(total.toString())),
     });
   };
+  useEffect(() => {
+    if (!fix) return;
+    const cloneItem = { ...itemProduct };
+    // delete cloneItem?.date;
+    formList.setFieldsValue({
+      ...cloneItem,
+      date: dayjs(cloneItem.date)
+    });
+  }, [fix]);
   return (
     <div>
       <Modal
@@ -97,10 +113,15 @@ function AddOrder({ open, formList, onSubmitForm, setOpen,db }) {
             >
               Hủy
             </Button>
-
-            <Button type="primary" onClick={() => formList.submit()}>
-              Thêm mới
-            </Button>
+            {fix ? (
+              <Button type="primary" onClick={() => formList.submit()}>
+                Sửa
+              </Button>
+            ) : (
+              <Button type="primary" onClick={() => formList.submit()}>
+                Thêm mới
+              </Button>
+            )}
           </div>
         }
         // confirmLoading={confirmLoading}
@@ -130,11 +151,24 @@ function AddOrder({ open, formList, onSubmitForm, setOpen,db }) {
               },
             ]}
           >
-            <Selects
-              option={optionSelectProduct}
+            <Select
               onChange={onChanges}
               placeholder="Mã sản phẩm"
-            />
+              allowClear
+              showSearch
+              optionFilterProp="lable"
+              filterOption={(input, option) => {
+                return (option?.value ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase());
+              }}
+            >
+              {optionSelectProduct.map((item) => (
+                <Select.Option key={item.id} value={item.value}>
+                  {item.label}
+                </Select.Option>
+              ))}
+            </Select>
           </Form.Item>
 
           <Form.Item
@@ -214,7 +248,7 @@ function AddOrder({ open, formList, onSubmitForm, setOpen,db }) {
           </Form.Item>
           <Form.Item
             label="Kênh bán"
-            name="chanel"
+            name="channel"
             rules={[
               {
                 required: true,
@@ -222,11 +256,22 @@ function AddOrder({ open, formList, onSubmitForm, setOpen,db }) {
               },
             ]}
           >
-            <Selects
+            <Select
               option={optionChannel}
-              onChange={onChanges}
-              placeholder="Mã sản phẩm"
-            />
+              placeholder="Kênh bán"
+              allowClear
+              showSearch
+              optionFilterProp="lable"
+              filterOption={(input, option) => {
+                return (option?.value ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase());
+              }}
+            >
+              {optionChannel.map((item) => (
+                <Select.Option value={item.value}>{item.label}</Select.Option>
+              ))}
+            </Select>
           </Form.Item>
           <Form.Item
             label="Trạng thái"
@@ -244,7 +289,16 @@ function AddOrder({ open, formList, onSubmitForm, setOpen,db }) {
               style={{
                 width: 430,
               }}
-              options={[
+              showSearch
+              optionFilterProp="lable"
+              filterOption={(input, option) => {
+                return (option?.value ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase());
+              }}
+              
+            >
+              {[
                 {
                   value: "waitting",
                   label: "Chờ thanh toán",
@@ -257,8 +311,10 @@ function AddOrder({ open, formList, onSubmitForm, setOpen,db }) {
                   value: "success",
                   label: "Thành công",
                 },
-              ]}
-            />
+              ].map((item) => (
+                <Select.Option value={item.value}>{item.label}</Select.Option>
+              ))}
+            </Select>
           </Form.Item>
         </CustomForm>
       </Modal>
