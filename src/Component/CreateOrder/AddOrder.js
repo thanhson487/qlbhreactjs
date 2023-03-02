@@ -10,10 +10,12 @@ import {
 } from "../../Common";
 import { optionChannel } from "../../Common/constant";
 import Selects from "./../../Common/Selects";
+import dayjs from "dayjs";
 const dateFormat = "DD/MM/YYYY";
 const dateFormatList = ["DD/MM/YYYY", "DD/MM/YY", "DD-MM-YYYY", "DD-MM-YY"];
 function AddOrder({ open, formList, onSubmitForm, setOpen,db }) {
- 
+ const data1 = dayjs(dayjs('20/11/2022',"DD/MM/YYYY").format("YYYY-MM-DD")).valueOf()
+
   const [data, setData] = useState([]);
 
   const [optionSelectProduct, setOptionSelectProduct] = useState([]);
