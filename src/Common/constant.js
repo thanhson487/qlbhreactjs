@@ -1,18 +1,19 @@
 export const optionChannel = [
   {
-
     value: "Shopee",
     label: "Shopee",
   },
   {
-
     value: "Lazada",
     label: "Lazada",
   },
   {
-
     value: "Tiktok",
     label: "Tiktok",
+  },
+  {
+    value: "Orther",
+    label: "Orther",
   },
 ];
 export const firebaseConfigProduct = {
@@ -23,7 +24,7 @@ export const firebaseConfigProduct = {
   storageBucket: "db-quanlybanhang-product.appspot.com",
   messagingSenderId: "742175351384",
   appId: "1:742175351384:web:38d6fe5e6646668451602d",
-  measurementId: "G-G02FCWN2YE"
+  measurementId: "G-G02FCWN2YE",
 };
 export const firebaseConfigLocal = {
   apiKey: "AIzaSyC_ATO3kV5OuuzZsVAcfECgASvBbmV7mRw",

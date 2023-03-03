@@ -28,6 +28,14 @@ function Product() {
 
   const columns = [
     {
+      title: "STT",
+      key: "STT",
+      width: "20px",
+      render: (text, object, index) => {
+        return <div>{index + 1}</div>;
+      },
+    },
+    {
       title: "Mã sản phẩm",
       dataIndex: "id",
       key: "id",
@@ -46,11 +54,19 @@ function Product() {
       key: "total",
       align: "center",
       render: (value) => {
-        return (
-          <div style={{ textAlign: "right" }}>
-            {formatPriceRuleListAssets(formatNumberNav(value.toString()))}
-          </div>
-        );
+        if (parseInt(value) < 20) {
+          return (
+            <div style={{ textAlign: "right", color: "red" }}>
+              {formatPriceRuleListAssets(formatNumberNav(value.toString()))}
+            </div>
+          );
+        } else {
+          return (
+            <div style={{ textAlign: "right", color: "#1677ff" }}>
+              {formatPriceRuleListAssets(formatNumberNav(value.toString()))}
+            </div>
+          );
+        }
       },
     },
     {

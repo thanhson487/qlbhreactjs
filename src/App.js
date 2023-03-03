@@ -12,18 +12,18 @@ import Home from "./Component/Home";
 import MenuRoute from "./Component/Menu/MenuRoute";
 import Product from "./Component/Product";
 import Warehouse from "./Component/Warehouse";
-import CreateOrder from "./Component/CreateOrder/CreateOrder";
+import CreateOrder from "./Component/Order/TableOrder";
 import { firebaseConfigLocal, firebaseConfigProduct } from "./Common/constant";
 // import { Breadcrumb, Layout, theme } from 'antd';
 
 function App() {
   const { Header, Content, Sider } = Layout;
-  const app = initializeApp(
+ initializeApp(
     window.location.hostname === "localhost"
       ? firebaseConfigLocal
       : firebaseConfigProduct
   );
-  const db = getDatabase();
+
 
   return (
     <div className="App">

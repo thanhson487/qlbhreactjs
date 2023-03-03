@@ -1,23 +1,28 @@
 import { Button, Col, Form, Input, Row, Select, Space } from "antd";
-import React from "react";
+import React, { useEffect } from "react";
 import useFormGroup from "../../Common/useForm";
 import { SearchOutlined } from "@ant-design/icons";
+import { isEmpty } from "lodash";
 
-const FillterTable = () => {
-  const { formList, onSubmitForm, resetForm, payload } = useFormGroup();
- 
- console.log(payload);
+const FillterTable = ({setDataFilter,formList, onSubmitForm, resetForm, payload }) => {
+
+  useEffect(() =>{
+    if(isEmpty(payload)) return 
+  setDataFilter(payload)
+    
+  },[payload])
+
   return (
     <Form form={formList} name="formList" onFinish={onSubmitForm}>
       <Space direction="vertical" size={10} style={{ width: "100%" }}>
         <Row gutter={[8, 8]}>
           <Col span={5}>
-            <Form.Item name="customerName" >
-              <Input placeholder="Tên khách hàng" />
+            <Form.Item name="customerName">
+              <Input placeholder="Tên khách hàng"  allowClear/>
             </Form.Item>
           </Col>
           <Col span={5}>
-            <Form.Item name="status" >
+            <Form.Item name="status">
               <Select
                 placeholder="Trạng thái"
                 allowClear

@@ -10,7 +10,7 @@ import {
   validateNumbers,
 } from "../../Common";
 import { optionChannel } from "../../Common/constant";
-const dateFormat = "DD/MM/YYYY";
+
 const dateFormatList = ["DD/MM/YYYY", "DD/MM/YY", "DD-MM-YYYY", "DD-MM-YY"];
 
 function AddOrder({
@@ -19,29 +19,32 @@ function AddOrder({
   onSubmitForm,
   setOpen,
   db,
-  fix,
+  isEditItem,
   itemProduct,
+  setIsEditItem,
 }) {
-  const data1 = dayjs(
-    dayjs("20/11/2022", "DD/MM/YYYY").format("YYYY-MM-DD")
-  ).valueOf();
   const [data, setData] = useState([]);
 
   const [optionSelectProduct, setOptionSelectProduct] = useState([]);
-
   const fetchData = () => {
     const refers = ref(db, "product/");
     get(refers)
       .then((snapshot) => {
         const value1 = snapshot.val();
-        // console.log(value);
 
         if (value1) {
           const arrValue = Object.values(value1);
-
-          setData([...arrValue]);
+          const select = arrValue?.map((item) => {
+            return {
+              id: item.id,
+              value: item.id,
+              label: item.id,
+            };
+          });
+          setData(arrValue);
+          setOptionSelectProduct(select);
         } else {
-          setData([]);
+          setOptionSelectProduct([]);
         }
       })
       .catch((err) => {
@@ -52,17 +55,7 @@ function AddOrder({
     if (!db) return;
     fetchData();
   }, [db]);
-  useEffect(() => {
-    if (!data) return;
-    const select = data?.map((item) => {
-      return {
-        id: item.id,
-        value: item.id,
-        label: item.id,
-      };
-    });
-    setOptionSelectProduct(select);
-  }, [data]);
+
   const onChanges = (value) => {
     const id = formList.getFieldValue("idProduct");
     const product = data.filter((item) => item.id === id)[0];
@@ -89,14 +82,14 @@ function AddOrder({
     });
   };
   useEffect(() => {
-    if (!fix) return;
+    if (!isEditItem) return;
     const cloneItem = { ...itemProduct };
     // delete cloneItem?.date;
     formList.setFieldsValue({
       ...cloneItem,
-      date: dayjs(cloneItem.date),
+      date: dayjs(cloneItem.date, "DD-MM-YYYY"),
     });
-  }, [fix]);
+  }, [isEditItem]);
   return (
     <div>
       <Modal
@@ -114,21 +107,16 @@ function AddOrder({
             >
               Hủy
             </Button>
-            {fix ? (
-              <Button type="primary" onClick={() => formList.submit()}>
-                Sửa
-              </Button>
-            ) : (
-              <Button type="primary" onClick={() => formList.submit()}>
-                Thêm mới
-              </Button>
-            )}
+            <Button type="primary" onClick={() => formList.submit()}>
+              {isEditItem ? "Sửa" : "Thêm mới"}
+            </Button>
           </div>
         }
         // confirmLoading={confirmLoading}
         onCancel={() => {
           setOpen(false);
           formList.resetFields();
+          setIsEditItem(false);
         }}
         destroyOnClose
       >
