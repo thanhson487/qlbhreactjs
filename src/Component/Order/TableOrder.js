@@ -408,6 +408,7 @@ function CreateOrder() {
             pagination={false}
             dataSource={dataTable}
             scroll={{
+                 x: 1500,
               y: 650,
             }}
           />
