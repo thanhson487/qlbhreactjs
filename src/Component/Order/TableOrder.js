@@ -1,26 +1,23 @@
-import React, { useEffect, useState } from "react";
-import styled from "styled-components";
-import { Button, Table, Modal, Typography, Tag } from "antd";
-import AddOrder from "./AddOrder";
-import useForm from "../../Common/useForm";
-import { get, getDatabase, ref, remove, set, update } from "firebase/database";
-import { nanoid } from "nanoid";
 import {
-  ClockCircleOutlined,
-  RedoOutlined,
   CheckCircleOutlined,
-  EditOutlined,
   DeleteOutlined,
+  EditOutlined,
   ExclamationCircleOutlined,
-  SyncOutlined,
+  SyncOutlined
 } from "@ant-design/icons";
-import FillterTable from "./FillterTable";
-import ListingSkeletonTable from "../../Common/ListingSkeletonTable";
+import { Button, Table, Tag, Tooltip } from "antd";
 import dayjs from "dayjs";
+import { get, getDatabase, ref, remove, set, update } from "firebase/database";
 import _, { filter, isEmpty } from "lodash";
+import { nanoid } from "nanoid";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import styled from "styled-components";
 import { formatNumberNav, formatPriceRuleListAssets } from "../../Common";
-import useFormGroup from "../../Common/useForm";
+import ListingSkeletonTable from "../../Common/ListingSkeletonTable";
+import { default as useForm, default as useFormGroup } from "../../Common/useForm";
+import AddOrder from "./AddOrder";
+import FillterTable from "./FillterTable";
 function CreateOrder() {
   const { formList, onSubmitForm, resetForm, payload } = useForm();
   const {
@@ -259,7 +256,26 @@ function CreateOrder() {
     setIsEditItem(true);
     setItemProduct(item);
   };
-
+const handleDeteleItem = (item) =>{
+const {id} = item;
+ const refers = ref(db, "order/" + id);
+    remove(refers)
+      .then(() => {
+        toast.success("Xóa thành công", {
+          position: "top-right",
+          autoClose: 2000,
+          theme: "light",
+        });
+        fetchDataTable();
+      })
+      .catch(() => {
+        toast.error("Xóa thất bại. vui lòng thử lại", {
+          position: "top-right",
+          autoClose: 2000,
+          theme: "light",
+        });
+      });
+}
   const columns = [
     {
       title: "STT",
@@ -370,13 +386,28 @@ function CreateOrder() {
       render: (text, record) => (
         <div className="flex justify-center">
           {record.status !== "success" && (
-            <EditOutlined
-              className="mr-2"
-              style={{ fontSize: "18px", color: "#08c" }}
-              onClick={() => handleEditItem(record)}
-            />
+            <Tooltip title="Chỉnh sửa">
+              <Button
+                shape="circle"
+                size="small"
+                className="mr-2"
+                icon={
+                  <EditOutlined  />
+                }
+                // onClick={() => handleDeteleItem(record)}
+                onClick={() => handleEditItem(record)}
+              />
+            </Tooltip>
           )}
-          <DeleteOutlined style={{ fontSize: "18px", color: "red" }} />
+
+          <Tooltip title="Xóa">
+            <Button
+              shape="circle"
+              size="small"
+              icon={<DeleteOutlined  />}
+              onClick={() => handleDeteleItem(record)}
+            />
+          </Tooltip>
         </div>
       ),
     },
@@ -408,6 +439,7 @@ function CreateOrder() {
             pagination={false}
             dataSource={dataTable}
             scroll={{
+              x: 1500,
               y: 650,
             }}
           />

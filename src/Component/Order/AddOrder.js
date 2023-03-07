@@ -5,9 +5,8 @@ import { isEmpty } from "lodash";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import {
-  formatNumberNav,
-  formatPriceRuleListAssets,
-  validateNumbers,
+  formatMoney,
+  validateNumbers
 } from "../../Common";
 import { optionChannel } from "../../Common/constant";
 
@@ -78,13 +77,12 @@ function AddOrder({
     const total = parseInt(price) * parseInt(quantity) - parseInt(fee);
 
     formList.setFieldsValue({
-      total: formatPriceRuleListAssets(formatNumberNav(total.toString())),
+      total: formatMoney(total.toString())
     });
   };
   useEffect(() => {
     if (!isEditItem) return;
     const cloneItem = { ...itemProduct };
-    // delete cloneItem?.date;
     formList.setFieldsValue({
       ...cloneItem,
       date: dayjs(cloneItem.date, "DD-MM-YYYY"),
@@ -112,7 +110,6 @@ function AddOrder({
             </Button>
           </div>
         }
-        // confirmLoading={confirmLoading}
         onCancel={() => {
           setOpen(false);
           formList.resetFields();

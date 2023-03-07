@@ -1,34 +1,115 @@
-import { Card, Space, Col, Row, Select } from "antd";
-import CustomSelects from "../../Common/Selects";
+import { Card, Col, DatePicker, Row } from "antd";
+import { get, getDatabase, ref } from "firebase/database";
+import { useEffect, useState } from "react";
+import { formatNumberNav, formatPriceRuleListAssets } from "../../Common";
+import dayjs from "dayjs";
+import { isEmpty } from "lodash";
+
+const { RangePicker } = DatePicker;
 function Home() {
-  const option = [
+  const [db, setDb] = useState();
+  const [dataTable, setDataTable] = useState([]);
+  const rangePresets = [
     {
-      id: 2,
-      value: 1,
-      label: "Hôm nay",
+      label: "Last 7 Days",
+      value: [dayjs().add(-7, "d"), dayjs()],
     },
     {
-      id: 2,
-      value: 2,
-      label: "1 Tuần",
-    },
-    {
-      id: 3,
-      value: 3,
-      label: "1 Tháng",
-    },
-    {
-      id: 4,
-      value: 4,
-      label: "1 Năm",
-    },
-    {
-      id: 5,
-      value: 5,
-      label: "Tất cả",
+      label: "Last 30 Days",
+      value: [dayjs().add(-30, "d"), dayjs()],
     },
   ];
-  const onChanges = () => {};
+  const [fromDate, setFromDate] = useState();
+  const [toDate, setToDate] = useState();
+  const [revenue, setRevenue] = useState(0);
+  const [totalToday, setToTalToday] = useState(0);
+  const [dataWaitting, setDataWaiting] = useState([]);
+  const [dataSendding, setDataSending] = useState([]);
+console.log(fromDate,toDate);
+
+  const onRangeChange = (dates, dateStrings) => {
+
+    if (dates) {
+      setFromDate(dayjs(dateStrings[0]).valueOf());
+      setToDate(dayjs(dateStrings[1]).valueOf());
+    } else {
+      setFromDate(null)
+      setToDate(0)
+      setRevenue(0);
+    }
+  };
+
+  useEffect(() => {
+    const db = getDatabase();
+    setDb(db);
+  }, []);
+  const fetchDataTable = () => {
+    const refers = ref(db, "order/");
+    get(refers)
+      .then((snapshot) => {
+        const value = snapshot.val();
+        if (value) {
+          const data = [];
+          for (const [key, value1] of Object.entries(value)) {
+            let arr = {};
+            arr = { id: key, ...value1 };
+            data.push(arr);
+          }
+          setDataTable([...data]);
+        } else {
+          setDataTable([]);
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+      })
+      .finally(() => {});
+  };
+  useEffect(() => {
+    if (!db) return;
+    fetchDataTable();
+  }, [db]);
+
+  useEffect(() => {
+    if (isEmpty(dataTable)) return;
+
+    //get Total Today
+    const today = dayjs(dayjs().format("YYYY-MM-DD")).valueOf();
+    const dataToDay = dataTable.filter((item) => {
+      const dateCurrent = dayjs(
+        dayjs(item?.date, "DD-MM-YYYY").format("YYYY-MM-DD")
+      ).valueOf();
+      return dateCurrent === today;
+    });
+    let total = 0;
+    dataToDay.forEach((item) => {
+      total = total + formatNumberNav((item?.total).toString());
+    });
+    setToTalToday(total);
+
+    const waitStatus = dataTable.filter((item) => item?.status === "waitting");
+    setDataWaiting(waitStatus);
+
+    const sendStatus = dataTable.filter((item) => item?.status === "sending");
+    setDataSending(sendStatus);
+  }, [dataTable]);
+
+ 
+  useEffect(() => {
+    if (!fromDate && !toDate) return;
+    const dataDate = dataTable.filter((item) => {
+      const dateCurrent = dayjs(
+        dayjs(item?.date, "DD-MM-YYYY").format("YYYY-MM-DD")
+      ).valueOf();
+      return dateCurrent >= fromDate && dateCurrent <= toDate;
+    });
+     let totalAll = 0;
+    dataDate.forEach((item) => {
+      totalAll = totalAll + formatNumberNav(item?.total);
+    });
+    setRevenue(totalAll);
+  }, [fromDate, toDate, dataTable]);
+
   return (
     <div>
       <h1 className="p-4">Tổng quan</h1>
@@ -36,45 +117,61 @@ function Home() {
       <Row gutter={[16, 16]}>
         <Col span={8}>
           <Card title="Doanh thu hôm nay" size="large">
-            <p>Doanh thu</p>
-            <p>650,000</p>
+            <p className="text-center font-semibold text-xl">
+              {formatPriceRuleListAssets(
+                formatNumberNav(totalToday.toString())
+              )}
+              VND
+            </p>
           </Card>
         </Col>
         <Col span={8}>
           <Card title="Đơn hàng chờ" size="large">
-            <p>Card content</p>
-            <p>Card content</p>
+            <p className="text-center font-semibold text-xl">
+              {dataWaitting?.length}
+            </p>
           </Card>
         </Col>
         <Col span={8}>
           <Card title="Đơn hàng đang vận chuyển" size="large">
-            <p>Card content</p>
-            <p>Card content</p>
+            <p className="text-center font-semibold text-xl">
+              {dataSendding?.length}
+            </p>
           </Card>
         </Col>
       </Row>
-      <Row gutter={[16, 16]} className = "mt-5">
+      <Row gutter={[16, 16]} className="mt-5">
         <Col span={8}>
-          <Card title="Doanh thu" size="large">
-            <p>
-              <CustomSelects
-                option={option}
-                onChange={onChanges}
-                placeholder={"Thời gian"}
-              />
+          <Card
+            title={
+              <div className="flex justify-between">
+                <div>Doanh thu</div>
+                <RangePicker
+                  presets={rangePresets}
+                  onChange={onRangeChange}
+                  allowClear
+                />
+              </div>
+            }
+            size="large"
+          >
+            <p className="text-center font-semibold text-xl">
+              {revenue &&
+                formatPriceRuleListAssets(
+                  formatNumberNav(revenue.toString())
+                )}{" "}
+              VND
             </p>
-            <p>650,000</p>
           </Card>
         </Col>
         <Col span={8}>
           <Card title="Tổng đơn hàng" size="large">
-            <p></p>
-            <p>Card content</p>
+            <p className="text-center font-semibold text-xl">
+              {dataTable.length}
+            </p>
           </Card>
         </Col>
       </Row>
-
-     
     </div>
   );
 }
