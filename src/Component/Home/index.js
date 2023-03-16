@@ -25,7 +25,8 @@ function Home() {
   const [totalToday, setToTalToday] = useState(0);
   const [dataWaitting, setDataWaiting] = useState([]);
   const [dataSendding, setDataSending] = useState([]);
-console.log(fromDate,toDate);
+  const [totalPrice,setTotalPrice]= useState(0)
+
 
   const onRangeChange = (dates, dateStrings) => {
 
@@ -109,7 +110,14 @@ console.log(fromDate,toDate);
     });
     setRevenue(totalAll);
   }, [fromDate, toDate, dataTable]);
-
+useEffect(() =>{
+if(isEmpty(dataTable)) return 
+let total = 0;
+dataTable.forEach((item) =>{
+  total = total + formatNumberNav(item?.total);
+})
+setTotalPrice(total)
+},[dataTable])
   return (
     <div>
       <h1 className="p-4">Tổng quan</h1>
@@ -168,6 +176,25 @@ console.log(fromDate,toDate);
           <Card title="Tổng đơn hàng" size="large">
             <p className="text-center font-semibold text-xl">
               {dataTable.length}
+            </p>
+          </Card>
+        </Col>
+            <Col span={8}>
+          <Card
+            title={
+              <div className="flex justify-between">
+                <div>Tổng Doanh thu</div>
+                
+              </div>
+            }
+            size="large"
+          >
+            <p className="text-center font-semibold text-xl">
+              {totalPrice &&
+                formatPriceRuleListAssets(
+                  formatNumberNav(totalPrice.toString())
+                )}{" "}
+              VND
             </p>
           </Card>
         </Col>
