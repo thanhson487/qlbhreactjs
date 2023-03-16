@@ -1,15 +1,23 @@
-import { Button, DatePicker, Form, Input, Modal, Select } from "antd";
+import {
+  Button,
+  Col,
+  DatePicker,
+  Form,
+  Input,
+  Modal,
+  Row,
+  Select,
+  Space,
+  Collapse,
+} from "antd";
 import dayjs from "dayjs";
 import { get, ref } from "firebase/database";
 import { isEmpty } from "lodash";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import {
-  formatMoney,
-  validateNumbers
-} from "../../Common";
+import { formatMoney, validateNumbers } from "../../Common";
 import { optionChannel } from "../../Common/constant";
-
+const { Panel } = Collapse;
 const dateFormatList = ["DD/MM/YYYY", "DD/MM/YY", "DD-MM-YYYY", "DD-MM-YY"];
 
 function AddOrder({
@@ -23,8 +31,8 @@ function AddOrder({
   setIsEditItem,
 }) {
   const [data, setData] = useState([]);
-
   const [optionSelectProduct, setOptionSelectProduct] = useState([]);
+
   const fetchData = () => {
     const refers = ref(db, "product/");
     get(refers)
@@ -77,17 +85,18 @@ function AddOrder({
     const total = parseInt(price) * parseInt(quantity) - parseInt(fee);
 
     formList.setFieldsValue({
-      total: formatMoney(total.toString())
+      total: formatMoney(total.toString()),
     });
   };
   useEffect(() => {
     if (!isEditItem) return;
     const cloneItem = { ...itemProduct };
+    
     formList.setFieldsValue({
       ...cloneItem,
       date: dayjs(cloneItem.date, "DD-MM-YYYY"),
     });
-  }, [isEditItem]);
+  }, [isEditItem,itemProduct]);
   return (
     <div>
       <Modal
@@ -120,145 +129,187 @@ function AddOrder({
         <CustomForm
           form={formList}
           name="formList"
-          wrapperCol={{ span: 16 }}
+          wrapperCol={{ span: 24 }}
           style={{ width: 650 }}
           onFinish={onSubmitForm}
           autoComplete="off"
           layout="vertical"
           onFieldsChange={handleFieldChange}
+          initialValues={{
+            fee: "0",
+            quantity: "1",
+          }}
         >
-          <Form.Item
-            label="Mã Sản Phẩm"
-            name="idProduct"
-            rules={[
-              {
-                required: true,
-                message: "Chọn mã sản phẩm",
-              },
-            ]}
-          >
-            <Select
-              onChange={onChanges}
-              placeholder="Mã sản phẩm"
-              allowClear
-              showSearch
-              optionFilterProp="lable"
-              filterOption={(input, option) => {
-                return (option?.value ?? "")
-                  .toLowerCase()
-                  .includes(input.toLowerCase());
-              }}
-            >
-              {optionSelectProduct.map((item) => (
-                <Select.Option key={item.id} value={item.value}>
-                  {item.label}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            label="Tên Sản phẩm"
-            name="productName"
-            rules={[
-              {
-                required: true,
-                message: "Chọn tên sản phẩm",
-              },
-            ]}
-          >
-            <Input disabled />
-          </Form.Item>
-          <Form.Item
-            label="Chọn ngày bán"
-            name="date"
-            rules={[
-              {
-                required: true,
-                message: "Chọn ngày bán",
-              },
-            ]}
-          >
-            <DatePicker format={dateFormatList} placeholder={"Chọn ngày bán"} />
-          </Form.Item>
-          <Form.Item
-            label="Tên Khách Hàng"
-            name="customerName"
-            rules={[
-              {
-                required: true,
-                message: "Nhập tên khách hàng",
-              },
-            ]}
-          >
-            <Input allowClear />
-          </Form.Item>
-          <Form.Item
-            label="Giá bán"
-            name="price"
-            rules={[
-              {
-                required: true,
-                validator: (_, value) => validateNumbers(value),
-              },
-            ]}
-          >
-            <Input allowClear />
-          </Form.Item>
-          <Form.Item
-            label="Phụ phí"
-            name="fee"
-            rules={[
-              {
-                required: true,
-                validator: (_, value) => validateNumbers(value),
-              },
-            ]}
-          >
-            <Input allowClear />
-          </Form.Item>
-          <Form.Item
-            label="Số lượng"
-            name="quantity"
-            rules={[
-              {
-                required: true,
-                validator: (_, value) => validateNumbers(value),
-              },
-            ]}
-          >
-            <Input allowClear />
-          </Form.Item>
-          <Form.Item label="Tổng tiền" name="total">
-            <Input disabled />
-          </Form.Item>
-          <Form.Item
-            label="Kênh bán"
-            name="channel"
-            rules={[
-              {
-                required: true,
-                message: "Chọn kênh bán",
-              },
-            ]}
-          >
-            <Select
-              option={optionChannel}
-              placeholder="Kênh bán"
-              allowClear
-              showSearch
-              optionFilterProp="lable"
-              filterOption={(input, option) => {
-                return (option?.value ?? "")
-                  .toLowerCase()
-                  .includes(input.toLowerCase());
-              }}
-            >
-              {optionChannel.map((item) => (
-                <Select.Option value={item.value}>{item.label}</Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
+          <Space direction="vertical" size={10} style={{ width: "100%" }}>
+            <Row gutter={[8, 8]}>
+              <Col span={8}>
+                <Form.Item
+                  label="Mã Sản Phẩm"
+                  name="idProduct"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Chọn mã sản phẩm",
+                    },
+                  ]}
+                  style={{ width: "100%", marginRight: 0 }}
+                >
+                  <Select
+                    onChange={onChanges}
+                    placeholder="Mã sản phẩm"
+                    allowClear
+                    showSearch
+                    optionFilterProp="lable"
+                    filterOption={(input, option) => {
+                      return (option?.value ?? "")
+                        .toLowerCase()
+                        .includes(input.toLowerCase());
+                    }}
+                  >
+                    {optionSelectProduct.map((item) => (
+                      <Select.Option key={item.id} value={item.value}>
+                        {item.label}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={8}>
+                <Form.Item
+                  label="Tên Sản phẩm"
+                  name="productName"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Chọn tên sản phẩm",
+                    },
+                  ]}
+                  style={{ width: "100%", marginRight: 0 }}
+                >
+                  <Input disabled style={{ width: "100%" }} />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={[8, 8]}>
+              <Col span={8}>
+                <Form.Item
+                  label="Chọn ngày bán"
+                  name="date"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Chọn ngày bán",
+                    },
+                  ]}
+                  style={{ width: "100%", marginRight: 0 }}
+                >
+                  <DatePicker
+                    format={dateFormatList}
+                    placeholder={"Chọn ngày bán"}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={8}>
+                <Form.Item
+                  label="Tên Khách Hàng"
+                  name="customerName"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Nhập tên khách hàng",
+                    },
+                  ]}
+                  style={{ width: "100%", marginRight: 0 }}
+                >
+                  <Input allowClear />
+                </Form.Item>
+              </Col>
+            </Row>
+          </Space>
+          <Row gutter={[8, 8]}>
+            <Col span={8}>
+              <Form.Item
+                label="Giá bán"
+                name="price"
+                rules={[
+                  {
+                    required: true,
+                    validator: (_, value) => validateNumbers(value),
+                  },
+                ]}
+              >
+                <Input allowClear />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                label="Phụ phí"
+                name="fee"
+                rules={[
+                  {
+                    required: true,
+                    validator: (_, value) => validateNumbers(value),
+                  },
+                ]}
+              >
+                <Input allowClear />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={[8, 8]}>
+            <Col span={8}>
+              <Form.Item
+                label="Số lượng"
+                name="quantity"
+                rules={[
+                  {
+                    required: true,
+                    validator: (_, value) => validateNumbers(value),
+                  },
+                ]}
+              >
+                <Input allowClear />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                label="Kênh bán"
+                name="channel"
+                rules={[
+                  {
+                    required: true,
+                    message: "Chọn kênh bán",
+                  },
+                ]}
+              >
+                <Select
+                  option={optionChannel}
+                  placeholder="Kênh bán"
+                  allowClear
+                  showSearch
+                  optionFilterProp="lable"
+                  filterOption={(input, option) => {
+                    return (option?.value ?? "")
+                      .toLowerCase()
+                      .includes(input.toLowerCase());
+                  }}
+                >
+                  {optionChannel.map((item) => (
+                    <Select.Option value={item.value}>
+                      {item.label}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={[8, 8]}>
+            <Col span={16}>
+              <Form.Item label="Tổng tiền" name="total">
+                <Input disabled />
+              </Form.Item>
+            </Col>
+          </Row>
           <Form.Item
             label="Trạng thái"
             name="status"
@@ -301,6 +352,91 @@ function AddOrder({
               ))}
             </Select>
           </Form.Item>
+
+          <Row gutter={[8, 8]}>
+            <Col span={16}>
+              <StyledCollapse >
+                <StyledPanel header="Sản phẩm mua kèm" key="1">
+                  <Row gutter={[8, 8]}>
+                    <Col span={12}>
+                      <Form.Item
+                        label="Mã Sản Phẩm"
+                        name="idProductDeal1"
+                       
+                        style={{ width: "100%", marginRight: 0 }}
+                      >
+                        <Select
+                          onChange={onChanges}
+                          placeholder="Mã sản phẩm"
+                          allowClear
+                          showSearch
+                          optionFilterProp="lable"
+                          filterOption={(input, option) => {
+                            return (option?.value ?? "")
+                              .toLowerCase()
+                              .includes(input.toLowerCase());
+                          }}
+                        >
+                          {optionSelectProduct.map((item) => (
+                            <Select.Option key={item.id} value={item.value}>
+                              {item.label}
+                            </Select.Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item
+                        label="Số lượng"
+                        name="quantityDeal1"
+                       
+                      >
+                        <Input allowClear />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                   <Row gutter={[8, 8]}>
+                    <Col span={12}>
+                      <Form.Item
+                        label="Mã Sản Phẩm"
+                        name="idProductDeal2"
+                    
+                        style={{ width: "100%", marginRight: 0 }}
+                      >
+                        <Select
+                          onChange={onChanges}
+                          placeholder="Mã sản phẩm"
+                          allowClear
+                          showSearch
+                          optionFilterProp="lable"
+                          filterOption={(input, option) => {
+                            return (option?.value ?? "")
+                              .toLowerCase()
+                              .includes(input.toLowerCase());
+                          }}
+                        >
+                          {optionSelectProduct.map((item) => (
+                            <Select.Option key={item.id} value={item.value}>
+                              {item.label}
+                            </Select.Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item
+                        label="Số lượng"
+                        name="quantityDeal2"
+                     
+                      >
+                        <Input allowClear />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                </StyledPanel>
+              </StyledCollapse>
+            </Col>
+          </Row>
         </CustomForm>
       </Modal>
     </div>
@@ -312,4 +448,13 @@ const CustomForm = styled(Form)`
   .ant-form-item {
     margin-bottom: 5px;
   }
+`;
+const StyledPanel = styled(Panel)`
+  .ant-collapse-content {
+    background: transparent;
+  }
+`;
+
+const StyledCollapse = styled(Collapse)`
+ 
 `;

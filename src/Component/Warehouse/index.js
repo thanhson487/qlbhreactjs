@@ -1,17 +1,111 @@
-import { Button, Col, Form, Input, Select, Typography } from "antd";
-import { get, getDatabase, ref, update } from "firebase/database";
+import { Button, Table, Tag, Tooltip } from "antd";
+import { get, getDatabase, ref, set, update } from "firebase/database";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import styled from "styled-components";
 import useForm from "../../Common/useForm";
-import { validateEmty } from "./../../Common";
-const { Title } = Typography;
+import DialogWarehouse from "./DialogWarehouse";
+import ListingSkeletonTable from "../../Common/ListingSkeletonTable";
+import {
+  CheckCircleOutlined,
+  DeleteOutlined,
+  EditOutlined,
+} from "@ant-design/icons";
+import { formatNumberNav, formatPriceRuleListAssets } from "../../Common";
+import { nanoid } from "nanoid";
+
 function Warehouse() {
   const [db, setDb] = useState();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [optionSelectProduct, setOptionSelectProduct] = useState([]);
+
   const { formList, onSubmitForm, payload, resetForm } = useForm();
+  const [open, setOpen] = useState(false);
+  const [dataTable, setDataTable] = useState([]);
+  const [totalPrice,setTotalPrice] = useState(0)
+
+  const columns = [
+    {
+      title: "STT",
+      key: "STT",
+      width: "100px",
+      render: (text, object, index) => {
+        return <div>{index + 1}</div>;
+      },
+    },
+
+    {
+      title: "Mã sản phẩm",
+      dataIndex: "id",
+      key: "id",
+      align: "center",
+    },
+    {
+      title: "Tên sản phẩm",
+      dataIndex: "productName",
+      key: "productName",
+      align: "center",
+    },
+    {
+      title: "Số lượng",
+      dataIndex: "total",
+      key: "total",
+      align: "center",
+    },
+
+    {
+      title: "Giá sản phẩm",
+      dataIndex: "price",
+      key: "price",
+      align: "center",
+      render: (value) => {
+        console.log("value", typeof value, value);
+
+        return (
+          <div style={{ textAlign: "right" }}>
+            {formatPriceRuleListAssets(formatNumberNav(value.toString()))}
+          </div>
+        );
+      },
+    },
+
+    {
+      title: "Tổng tiền",
+      dataIndex: "total",
+      key: "total",
+      align: "center",
+      render: (text, record) => (
+        <div>
+          {formatPriceRuleListAssets(
+            formatNumberNav(
+              (parseInt(record.total) * parseInt(record.price)).toString()
+            )
+          )}
+        </div>
+      ),
+    },
+
+    {
+      title: "Action",
+      dataIndex: "Action",
+      key: "Action",
+      align: "center",
+      render: (text, record) => (
+        <div className="flex justify-center">
+        
+          <Tooltip title="Xóa">
+            <Button
+              shape="circle"
+              size="small"
+              icon={<DeleteOutlined />}
+              // onClick={() => handleDeteleItem(record)}
+            />
+          </Tooltip>
+        </div>
+      ),
+    },
+  ];
 
   useEffect(() => {
     const db = getDatabase();
@@ -20,7 +114,6 @@ function Warehouse() {
   useEffect(() => {
     if (!payload) return;
     const product = data.filter((item) => item.id === payload.id)[0];
-
     const total = parseInt(payload.total) + product.total;
     const price =
       (parseInt(payload.total) * parseInt(payload.price) +
@@ -38,21 +131,55 @@ function Warehouse() {
         theme: "light",
       });
       formList.resetFields();
+      const id = nanoid();
+      const refersWareHouse = ref(db, "warehouse/" + id);
+      set(refersWareHouse, {
+        key: id,
+        ...payload,
+      }).then(() => {
+        fetchDataTable();
+      });
     });
   }, [payload]);
 
   const fetchData = () => {
-    setLoading(true);
     const refers = ref(db, "product/");
     get(refers)
       .then((snapshot) => {
         const value = snapshot.val();
         if (value) {
           const arrValue = Object.values(value);
-
           setData([...arrValue]);
         } else {
           setData([]);
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+      })
+      .finally(() => {});
+  };
+  const fetchDataTable = () => {
+    setOpen(false);
+    setLoading(true);
+    const refers = ref(db, "warehouse/");
+    get(refers)
+      .then((snapshot) => {
+        const value = snapshot.val();
+        if (value) {
+          const arrValue = Object.values(value);
+          let total = 0;
+          arrValue.forEach(item =>{
+            total = total + (parseInt(item.total) * parseInt(item.price))
+          })
+          setTotalPrice(formatPriceRuleListAssets(
+            formatNumberNav(
+             total.toString()
+            )
+          ))
+          setDataTable(arrValue);
+        } else {
+          setDataTable([]);
         }
       })
       .catch((err) => {
@@ -62,10 +189,11 @@ function Warehouse() {
         setLoading(false);
       });
   };
-
+  console.log(dataTable);
   useEffect(() => {
     if (!db) return;
     fetchData();
+    fetchDataTable();
   }, [db]);
   useEffect(() => {
     if (!data) return;
@@ -85,113 +213,75 @@ function Warehouse() {
       productName: product.productName,
     });
   };
+  console.log("optionSelectProduct", dataTable);
 
   return (
-    <Wrapper>
-      <div style={{ width: "500px" }}>
-        <CustomTitle>
-          <Title level={3}>Nhập kho sản phẩm</Title>
-        </CustomTitle>
-        <CustomForm
-          form={formList}
-          onFinish={onSubmitForm}
-          name="formList"
-          layout={"vertical"}
-        >
-          <Col>
-            <Form.Item
-              name="id"
-              label="Mã sản phẩm"
-              rules={[
-                {
-                  required: true,
-                  validator: (_, value) => validateEmty(value),
-                },
-              ]}
-            >
-              <Select
-                onChange={onChanges}
-                placeholder="Mã sản phẩm"
-                allowClear
-                showSearch
-                optionFilterProp="lable"
-                filterOption={(input, option) => {
-                  return (option?.value ?? "")
-                    .toLowerCase()
-                    .includes(input.toLowerCase());
-                }}
-              >
-                {optionSelectProduct.map((item) => (
-                  <Select.Option key={item.id} value={item.value}>
-                    {item.label}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </Col>
-          <Col>
-            <Form.Item
-              name="productName"
-              label="Tên sản phẩm"
-              rules={[
-                {
-                  required: true,
-                  validator: (_, value) => validateEmty(value),
-                },
-              ]}
-            >
-              <Input placeholder="Nhập tên sản phẩm" allowClear disabled />
-            </Form.Item>
-          </Col>
-          <Col>
-            <Form.Item
-              name="total"
-              label="Số lượng"
-              rules={[
-                {
-                  required: true,
-                  validator: (_, value) => validateEmty(value),
-                },
-              ]}
-            >
-              <Input placeholder="Nhập số lượng" allowClear />
-            </Form.Item>
-          </Col>
-          <Col>
-            <Form.Item
-              name="price"
-              label="Giá nhập"
-              rules={[
-                {
-                  required: true,
-                  validator: (_, value) => validateEmty(value),
-                },
-              ]}
-            >
-              <Input placeholder="Nhập giá nhập" allowClear />
-            </Form.Item>
-          </Col>
-        </CustomForm>
-        <div style={{ textAlign: "center" }}>
-          <Button type="primary" onClick={() => formList.submit()}>
-            Thêm sản phẩm
+    <div>
+      <Wrapper>
+        <CustomButton>
+          <Button type="primary" onClick={() => setOpen(true)}>
+            Tạo đơn hàng
           </Button>
+        </CustomButton>
+      </Wrapper>
+      {loading ? (
+        <ListingSkeletonTable columns={columns} size={3} />
+      ) : (
+        <div>
+          <div className="mb-3 ml-2 bold">
+            {`Tổng đơn hàng ${dataTable.length}`}{" "}
+          </div>
+          <StyledTable
+            columns={columns}
+            bordered
+            pagination={false}
+            dataSource={dataTable}
+            scroll={{
+              y: 600,
+            }}
+            footer={() => <div className = "flex justify-between"> <div className="text-base">Tổng tiền</div><div className="text-xl font-bold">{totalPrice}</div> </div>}
+          />
         </div>
-      </div>
-    </Wrapper>
+      )}
+      <DialogWarehouse
+        formList={formList}
+        onSubmitForm={onSubmitForm}
+        payload={payload}
+        resetForm={resetForm}
+        open={open}
+        setOpen={setOpen}
+        onChanges={onChanges}
+        optionSelectProduct={optionSelectProduct}
+      />
+    </div>
   );
 }
 
 export default Warehouse;
-const CustomTitle = styled.div`
-  text-align: center;
-`;
-const CustomForm = styled(Form)`
-  .ant-form-item {
-    margin-bottom: 5px;
-  }
-`;
+
 const Wrapper = styled.div`
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
+`;
+const CustomButton = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin: 10px;
+`;
+const StyledTable = styled(Table)`
+  .ant-table-container {
+    border: 1px solid #f0f0f0 !important;
+  }
+  .ant-table-selection-column > .ant-checkbox-wrapper {
+    display: inline-flex !important;
+  }
+  .ant-table-cell {
+    padding: 8px 16px !important;
+  }
+  .ant-checkbox-indeterminate .ant-checkbox-inner::after {
+    background-color: white;
+  }
+  .ant-pagination {
+    display: none !important;
+  }
 `;

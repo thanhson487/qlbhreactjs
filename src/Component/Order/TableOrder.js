@@ -3,7 +3,8 @@ import {
   DeleteOutlined,
   EditOutlined,
   ExclamationCircleOutlined,
-  SyncOutlined
+  RedoOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import { Button, Table, Tag, Tooltip } from "antd";
 import dayjs from "dayjs";
@@ -15,7 +16,10 @@ import { toast } from "react-toastify";
 import styled from "styled-components";
 import { formatNumberNav, formatPriceRuleListAssets } from "../../Common";
 import ListingSkeletonTable from "../../Common/ListingSkeletonTable";
-import { default as useForm, default as useFormGroup } from "../../Common/useForm";
+import {
+  default as useForm,
+  default as useFormGroup,
+} from "../../Common/useForm";
 import AddOrder from "./AddOrder";
 import FillterTable from "./FillterTable";
 function CreateOrder() {
@@ -89,18 +93,21 @@ function CreateOrder() {
     if (!payload) return;
 
     if (!isEditItem) {
+      Object.keys(payload).forEach(
+        (key) => payload[key] === undefined && delete payload[key]
+      );
       const id = nanoid();
+
       const refers = ref(db, "order/" + id);
       set(refers, {
         ...payload,
       })
         .then(() => {
-          if (payload?.status === "success") {
-            const { idProduct } = payload;
+          const { idProduct, idProductDeal1, idProductDeal2 } = payload;
+          if (!isEmpty(idProduct)) {
             const productData = product.filter(
               (item) => item.id === idProduct
             )[0];
-
             const productItemNew = {
               ...productData,
               total: parseInt(productData.total) - parseInt(payload.quantity),
@@ -108,17 +115,49 @@ function CreateOrder() {
 
             const refersData = ref(db, "product/" + idProduct);
             update(refersData, { ...productItemNew }).then(() => {
-              toast.success("Đã hoàn thành đơn hàng", {
+              toast.success("Tạo đơn hàng thành công", {
                 position: "top-center",
                 autoClose: 2000,
                 theme: "light",
               });
             });
-          } else {
-            toast.success("Tạo đơn hàng thành công", {
-              position: "top-center",
-              autoClose: 2000,
-              theme: "light",
+          }
+
+          if (!isEmpty(idProductDeal1)) {
+            const refersDataDeal1 = ref(db, "product/" + idProductDeal1);
+            const productDataDeal1 = product.filter(
+              (item) => item.id === idProductDeal1
+            )[0];
+            const productItemNewDeal1 = {
+              ...productDataDeal1,
+              total:
+                parseInt(productDataDeal1.total) -
+                parseInt(payload.quantityDeal1),
+            };
+            update(refersDataDeal1, { ...productItemNewDeal1 }).then(() => {
+              toast.success("Tạo đơn hàng thành công", {
+                position: "top-center",
+                autoClose: 1000,
+                theme: "light",
+              });
+            });
+          }
+          if (!isEmpty(idProductDeal2)) {
+            const refersDataDeal2 = ref(db, "product/" + idProductDeal2);
+            const productData = product.filter(
+              (item) => item.id === idProductDeal2
+            )[0];
+            const productItemNew = {
+              ...productData,
+              total:
+                parseInt(productData.total) - parseInt(payload.quantityDeal2),
+            };
+            update(refersDataDeal2, { ...productItemNew }).then(() => {
+              toast.success("Tạo đơn hàng thành công", {
+                position: "top-center",
+                autoClose: 1000,
+                theme: "light",
+              });
             });
           }
 
@@ -135,38 +174,21 @@ function CreateOrder() {
     } else {
       const id = itemProduct?.id;
       const refers = ref(db, "order/" + id);
+      Object.keys(payload).forEach(
+        (key) => payload[key] === undefined && delete payload[key]
+      );
       update(refers, {
         ...payload,
       }).then(() => {
         formList.resetFields();
         setItemProduct({});
         setIsEditItem(false);
-        if (payload?.status === "success") {
-          const { idProduct } = payload;
-          const productData = product.filter(
-            (item) => item.id === idProduct
-          )[0];
+        toast.success("Sửa đơn hàng thành công", {
+          position: "top-center",
+          autoClose: 2000,
+          theme: "light",
+        });
 
-          const productItemNew = {
-            ...productData,
-            total: parseInt(productData.total) - parseInt(payload.quantity),
-          };
-
-          const refersData = ref(db, "product/" + idProduct);
-          update(refersData, { ...productItemNew }).then(() => {
-            toast.success("Đã hoàn thành đơn hàng", {
-              position: "top-center",
-              autoClose: 2000,
-              theme: "light",
-            });
-          });
-        } else {
-          toast.success("Sửa đơn hàng thành công", {
-            position: "top-center",
-            autoClose: 2000,
-            theme: "light",
-          });
-        }
         setOpen(false);
         formList.resetFields();
       });
@@ -256,9 +278,9 @@ function CreateOrder() {
     setIsEditItem(true);
     setItemProduct(item);
   };
-const handleDeteleItem = (item) =>{
-const {id} = item;
- const refers = ref(db, "order/" + id);
+  const handleDeteleItem = (item) => {
+    const { id } = item;
+    const refers = ref(db, "order/" + id);
     remove(refers)
       .then(() => {
         toast.success("Xóa thành công", {
@@ -275,27 +297,30 @@ const {id} = item;
           theme: "light",
         });
       });
-}
+  };
   const columns = [
     {
       title: "STT",
       key: "STT",
-      width: "100px",
+      width: "70px",
       render: (text, object, index) => {
-        return <div>{index + 1}</div>;
+        return <div className="text-center">{index + 1}</div>;
       },
+      fixed: "left",
     },
     {
       title: "Mã sản phẩm",
       dataIndex: "idProduct",
       key: "idProduct",
       align: "center",
+      fixed: "left",
     },
     {
       title: "Tên sản phẩm",
       dataIndex: "productName",
       key: "productName",
       align: "center",
+      fixed: "left",
     },
     {
       title: "Ngày bán",
@@ -310,6 +335,37 @@ const {id} = item;
       align: "center",
     },
 
+    {
+      title: "Trạng thái",
+      dataIndex: "status",
+      key: "status",
+      align: "center",
+
+      render: (text, record) => {
+        switch (record?.status) {
+          case "waitting":
+            return (
+              <Tag icon={<ExclamationCircleOutlined />} color="warning">
+                Chờ thanh toán
+              </Tag>
+            );
+          case "sending":
+            return (
+              <Tag icon={<SyncOutlined spin />} color="processing">
+                Đang gửi
+              </Tag>
+            );
+          case "success":
+            return (
+              <Tag icon={<CheckCircleOutlined />} color="success">
+                Đã hoàn thành
+              </Tag>
+            );
+          default:
+            return "-";
+        }
+      },
+    },
     {
       title: "Giá sản phẩm",
       dataIndex: "price",
@@ -348,34 +404,21 @@ const {id} = item;
       align: "center",
     },
     {
-      title: "Trạng thái",
-      dataIndex: "status",
-      key: "status",
+      title: "Sản phẩm mua kèm",
+      dataIndex: "productDeal",
       align: "center",
-
       render: (text, record) => {
-        switch (record?.status) {
-          case "waitting":
-            return (
-              <Tag icon={<ExclamationCircleOutlined />} color="warning">
-                Chờ thanh toán
-              </Tag>
-            );
-          case "sending":
-            return (
-              <Tag icon={<SyncOutlined spin />} color="processing">
-                processing
-              </Tag>
-            );
-          case "success":
-            return (
-              <Tag icon={<CheckCircleOutlined />} color="success">
-                Đã hoàn thành
-              </Tag>
-            );
-          default:
-            return "-";
-        }
+        console.log(record);
+        return (
+          <div>
+            <div>{`${record?.idProductDeal1 || "--"} : ${
+              record.quantityDeal1 || "--"
+            }`}</div>
+              <div>{`${record?.idProductDeal2 || "--"} : ${
+              record.quantityDeal2 || "--"
+            }`}</div>
+          </div>
+        );
       },
     },
     {
@@ -391,9 +434,7 @@ const {id} = item;
                 shape="circle"
                 size="small"
                 className="mr-2"
-                icon={
-                  <EditOutlined  />
-                }
+                icon={<EditOutlined />}
                 // onClick={() => handleDeteleItem(record)}
                 onClick={() => handleEditItem(record)}
               />
@@ -404,10 +445,20 @@ const {id} = item;
             <Button
               shape="circle"
               size="small"
-              icon={<DeleteOutlined  />}
+              icon={<DeleteOutlined />}
               onClick={() => handleDeteleItem(record)}
             />
           </Tooltip>
+          {record.status === "success" && (
+            <Tooltip title="Hoàn đơn ">
+              <Button
+                shape="circle"
+                size="small"
+                icon={<RedoOutlined />}
+                onClick={() => handleDeteleItem(record)}
+              />
+            </Tooltip>
+          )}
         </div>
       ),
     },

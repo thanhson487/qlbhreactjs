@@ -6,7 +6,8 @@ import {
   RightOutlined,
   ScanOutlined,
   PlusSquareOutlined,
-  ShoppingCartOutlined
+  ShoppingCartOutlined,
+  PoundCircleOutlined
 } from '@ant-design/icons';
 import { Menu } from 'antd';
 import React, { useState } from 'react';
@@ -25,7 +26,8 @@ const items = [
   getItem('Trang chủ', '/', <HomeOutlined />),
   getItem('Sản phẩm', '/san-pham', <ShoppingCartOutlined />),
   getItem('Nhập kho', '/nhap-kho', <ScanOutlined />),
-  getItem('Tạo đơn hàng', '/tao-don-hang', <PlusSquareOutlined />),
+  getItem('Đơn hàng', '/don-hang', <PlusSquareOutlined />),
+  getItem("Marketing","/marketing",<PoundCircleOutlined />)
 ];
 function MenuRoute() {
   const navigate = useNavigate()

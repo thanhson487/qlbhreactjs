@@ -14,6 +14,7 @@ import Product from "./Component/Product";
 import Warehouse from "./Component/Warehouse";
 import CreateOrder from "./Component/Order/TableOrder";
 import { firebaseConfigLocal, firebaseConfigProduct } from "./Common/constant";
+import Marketing from "./Component/Marketing";
 // import { Breadcrumb, Layout, theme } from 'antd';
 
 function App() {
@@ -62,7 +63,8 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/san-pham" element={<Product />} />
                 <Route path="/nhap-kho" element={<Warehouse />} />
-                <Route path="/tao-don-hang" element={<CreateOrder />} />
+                <Route path="/don-hang" element={<CreateOrder />} />
+                <Route path="/marketing" element= {<Marketing />} />
               </Routes>
             </Content>
           </Layout>
