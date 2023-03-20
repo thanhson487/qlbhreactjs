@@ -1,12 +1,4 @@
-import {
-  CheckCircleOutlined,
-  DeleteOutlined,
-  EditOutlined,
-  ExclamationCircleOutlined,
-  RedoOutlined,
-  SyncOutlined,
-} from "@ant-design/icons";
-import { Button, Table, Tag, Tooltip } from "antd";
+import { Button, Tabs } from "antd";
 import dayjs from "dayjs";
 import { get, getDatabase, ref, remove, set, update } from "firebase/database";
 import _, { filter, isEmpty } from "lodash";
@@ -14,14 +6,13 @@ import { nanoid } from "nanoid";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import styled from "styled-components";
-import { formatNumberNav, formatPriceRuleListAssets } from "../../Common";
-import ListingSkeletonTable from "../../Common/ListingSkeletonTable";
 import {
   default as useForm,
   default as useFormGroup,
 } from "../../Common/useForm";
 import AddOrder from "./AddOrder";
 import FillterTable from "./FillterTable";
+import ViewData from "./ViewData";
 function CreateOrder() {
   const { formList, onSubmitForm, resetForm, payload } = useForm();
   const {
@@ -298,171 +289,12 @@ function CreateOrder() {
         });
       });
   };
-  const columns = [
-    {
-      title: "STT",
-      key: "STT",
-      width: "70px",
-      render: (text, object, index) => {
-        return <div className="text-center">{index + 1}</div>;
-      },
-      fixed: "left",
-    },
-    {
-      title: "Mã sản phẩm",
-      dataIndex: "idProduct",
-      key: "idProduct",
-      align: "center",
-      fixed: "left",
-    },
-    {
-      title: "Tên sản phẩm",
-      dataIndex: "productName",
-      key: "productName",
-      align: "center",
-      fixed: "left",
-    },
-    {
-      title: "Ngày bán",
-      dataIndex: "date",
-      key: "date",
-      align: "center",
-    },
-    {
-      title: "Tên Khách Hàng",
-      dataIndex: "customerName",
-      key: "customerName",
-      align: "center",
-    },
 
-    {
-      title: "Trạng thái",
-      dataIndex: "status",
-      key: "status",
-      align: "center",
-
-      render: (text, record) => {
-        switch (record?.status) {
-          case "waitting":
-            return (
-              <Tag icon={<ExclamationCircleOutlined />} color="warning">
-                Chờ thanh toán
-              </Tag>
-            );
-          case "sending":
-            return (
-              <Tag icon={<SyncOutlined spin />} color="processing">
-                Đang gửi
-              </Tag>
-            );
-          case "success":
-            return (
-              <Tag icon={<CheckCircleOutlined />} color="success">
-                Đã hoàn thành
-              </Tag>
-            );
-          default:
-            return "-";
-        }
-      },
-    },
-    {
-      title: "Giá sản phẩm",
-      dataIndex: "price",
-      key: "price",
-      align: "center",
-      render: (value) => {
-        return (
-          <div style={{ textAlign: "right" }}>
-            {formatPriceRuleListAssets(formatNumberNav(value.toString()))}
-          </div>
-        );
-      },
-    },
-    {
-      title: "Phụ phí",
-      dataIndex: "fee",
-      key: "fee",
-      align: "center",
-    },
-    {
-      title: "Số lượng",
-      dataIndex: "quantity",
-      key: "quantity",
-      align: "center",
-    },
-    {
-      title: "Tổng tiền",
-      dataIndex: "total",
-      key: "total",
-      align: "center",
-    },
-    {
-      title: "Kênh bán",
-      dataIndex: "channel",
-      key: "channel",
-      align: "center",
-    },
-    {
-      title: "Sản phẩm mua kèm",
-      dataIndex: "productDeal",
-      align: "center",
-      render: (text, record) => {
-        console.log(record);
-        return (
-          <div>
-            <div>{`${record?.idProductDeal1 || "--"} : ${
-              record.quantityDeal1 || "--"
-            }`}</div>
-              <div>{`${record?.idProductDeal2 || "--"} : ${
-              record.quantityDeal2 || "--"
-            }`}</div>
-          </div>
-        );
-      },
-    },
-    {
-      title: "Action",
-      dataIndex: "Action",
-      key: "Action",
-      align: "center",
-      render: (text, record) => (
-        <div className="flex justify-center">
-          {record.status !== "success" && (
-            <Tooltip title="Chỉnh sửa">
-              <Button
-                shape="circle"
-                size="small"
-                className="mr-2"
-                icon={<EditOutlined />}
-                // onClick={() => handleDeteleItem(record)}
-                onClick={() => handleEditItem(record)}
-              />
-            </Tooltip>
-          )}
-
-          <Tooltip title="Xóa">
-            <Button
-              shape="circle"
-              size="small"
-              icon={<DeleteOutlined />}
-              onClick={() => handleDeteleItem(record)}
-            />
-          </Tooltip>
-          {record.status === "success" && (
-            <Tooltip title="Hoàn đơn ">
-              <Button
-                shape="circle"
-                size="small"
-                icon={<RedoOutlined />}
-                onClick={() => handleDeteleItem(record)}
-              />
-            </Tooltip>
-          )}
-        </div>
-      ),
-    },
-  ];
+  const [activeTab, setActiveTab] = useState("Shopee");
+  const handleChangeValueTab = (value) => {
+    setActiveTab(value);
+  };
+  console.log(dataTable);
 
   return (
     <div>
@@ -477,25 +309,52 @@ function CreateOrder() {
         onSubmitForm={onSubmitForms}
         payload={payloads}
       />
-      {loading ? (
+      {/* {loading ? (
         <ListingSkeletonTable columns={columns} size={3} />
       ) : (
         <div>
           <div className="mb-3 ml-2 bold">
             {`Tổng đơn hàng ${dataTable.length}`}{" "}
           </div>
-          <StyledTable
-            columns={columns}
-            bordered
-            pagination={false}
-            dataSource={dataTable}
-            scroll={{
-              x: 1500,
-              y: 650,
-            }}
-          />
+         
         </div>
-      )}
+      )} */}
+      <Tabs
+        type="card"
+        size="large"
+        destroyInactiveTabPane
+        defaultActiveKey="SHOPEE"
+        onChange={(activeKey) => handleChangeValueTab(activeKey)}
+      >
+        <Tabs.TabPane tab="Shopee" key="SHOPEE">
+          <ViewData
+            dataArr={dataTable.filter((item) => item.channel === "Shopee")}
+            handleEditItem={handleEditItem}
+            handleDeteleItem={handleDeteleItem}
+          />
+        </Tabs.TabPane>
+        <Tabs.TabPane tab="Tiktok" key="TIKTOK">
+          <ViewData
+            dataArr={dataTable.filter((item) => item.channel === "Tiktok")}
+            handleEditItem={handleEditItem}
+            handleDeteleItem={handleDeteleItem}
+          />
+        </Tabs.TabPane>
+        <Tabs.TabPane tab="Lazada" key="LAZADA">
+          <ViewData
+            dataArr={dataTable.filter((item) => item.channel === "Lazada")}
+            handleEditItem={handleEditItem}
+            handleDeteleItem={handleDeteleItem}
+          />
+        </Tabs.TabPane>
+        <Tabs.TabPane tab="Orther" key="ORTHER">
+          <ViewData
+            dataArr={dataTable.filter((item) => item.channel === "OrtOrtherer")}
+            handleEditItem={handleEditItem}
+            handleDeteleItem={handleDeteleItem}
+          />
+        </Tabs.TabPane>
+      </Tabs>
       <AddOrder
         open={open}
         formList={formList}
@@ -512,23 +371,7 @@ function CreateOrder() {
 }
 
 export default CreateOrder;
-const StyledTable = styled(Table)`
-  .ant-table-container {
-    border: 1px solid #f0f0f0 !important;
-  }
-  .ant-table-selection-column > .ant-checkbox-wrapper {
-    display: inline-flex !important;
-  }
-  .ant-table-cell {
-    padding: 8px 16px !important;
-  }
-  .ant-checkbox-indeterminate .ant-checkbox-inner::after {
-    background-color: white;
-  }
-  .ant-pagination {
-    display: none !important;
-  }
-`;
+
 const CustomButton = styled.div`
   display: flex;
   justify-content: flex-end;
