@@ -25,17 +25,16 @@ function Home() {
   const [totalToday, setToTalToday] = useState(0);
   const [dataWaitting, setDataWaiting] = useState([]);
   const [dataSendding, setDataSending] = useState([]);
-  const [totalPrice,setTotalPrice]= useState(0)
-
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [totalMonth, setTotalMonth] = useState(0);
 
   const onRangeChange = (dates, dateStrings) => {
-
     if (dates) {
       setFromDate(dayjs(dateStrings[0]).valueOf());
       setToDate(dayjs(dateStrings[1]).valueOf());
     } else {
-      setFromDate(null)
-      setToDate(0)
+      setFromDate(null);
+      setToDate(0);
       setRevenue(0);
     }
   };
@@ -95,7 +94,26 @@ function Home() {
     setDataSending(sendStatus);
   }, [dataTable]);
 
- 
+  useEffect(() => {
+    if (isEmpty(dataTable)) return;
+    const now = dayjs(); // get current date
+    const firstDay = now.startOf("month").format("YYYY-MM-DD"); // get first day of the month
+    let currentDay = dayjs().format("YYYY-MM-DD");
+    const dataDate = dataTable.filter((item) => {
+      const dateCurrent = dayjs(
+        dayjs(item?.date, "DD-MM-YYYY").format("YYYY-MM-DD")
+      ).valueOf();
+      return (
+        dateCurrent >= dayjs(firstDay).valueOf() &&
+        dateCurrent <= dayjs(currentDay).valueOf()
+      );
+    });
+    let totalAll = 0;
+    dataDate.forEach((item) => {
+      totalAll = totalAll + formatNumberNav(item?.total);
+    });
+    setTotalMonth(totalAll);
+  }, [dataTable]);
   useEffect(() => {
     if (!fromDate && !toDate) return;
     const dataDate = dataTable.filter((item) => {
@@ -104,20 +122,20 @@ function Home() {
       ).valueOf();
       return dateCurrent >= fromDate && dateCurrent <= toDate;
     });
-     let totalAll = 0;
+    let totalAll = 0;
     dataDate.forEach((item) => {
       totalAll = totalAll + formatNumberNav(item?.total);
     });
     setRevenue(totalAll);
   }, [fromDate, toDate, dataTable]);
-useEffect(() =>{
-if(isEmpty(dataTable)) return 
-let total = 0;
-dataTable.forEach((item) =>{
-  total = total + formatNumberNav(item?.total);
-})
-setTotalPrice(total)
-},[dataTable])
+  useEffect(() => {
+    if (isEmpty(dataTable)) return;
+    let total = 0;
+    dataTable.forEach((item) => {
+      total = total + formatNumberNav(item?.total);
+    });
+    setTotalPrice(total);
+  }, [dataTable]);
   return (
     <div>
       <h1 className="p-4">Tổng quan</h1>
@@ -133,22 +151,6 @@ setTotalPrice(total)
             </p>
           </Card>
         </Col>
-        <Col span={8}>
-          <Card title="Đơn hàng chờ" size="large">
-            <p className="text-center font-semibold text-xl">
-              {dataWaitting?.length}
-            </p>
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card title="Đơn hàng đang vận chuyển" size="large">
-            <p className="text-center font-semibold text-xl">
-              {dataSendding?.length}
-            </p>
-          </Card>
-        </Col>
-      </Row>
-      <Row gutter={[16, 16]} className="mt-5">
         <Col span={8}>
           <Card
             title={
@@ -173,18 +175,46 @@ setTotalPrice(total)
           </Card>
         </Col>
         <Col span={8}>
+          <Card title="Doanh thu tháng này" size="large">
+            <p className="text-center font-semibold text-xl">
+              {totalPrice &&
+                formatPriceRuleListAssets(
+                  formatNumberNav(totalMonth.toString())
+                )}{" "}
+              VND
+            </p>
+          </Card>
+        </Col>
+      </Row>
+      <Row gutter={[16, 16]} className="mt-5">
+        <Col span={8}>
           <Card title="Tổng đơn hàng" size="large">
             <p className="text-center font-semibold text-xl">
               {dataTable.length}
             </p>
           </Card>
         </Col>
-            <Col span={8}>
+        <Col span={8}>
+          <Card title="Đơn hàng chờ" size="large">
+            <p className="text-center font-semibold text-xl">
+              {dataWaitting?.length}
+            </p>
+          </Card>
+        </Col>
+        <Col span={8}>
+          <Card title="Đơn hàng đang vận chuyển" size="large">
+            <p className="text-center font-semibold text-xl">
+              {dataSendding?.length}
+            </p>
+          </Card>
+        </Col>
+      </Row>
+      <Row gutter={[16, 16]} className="mt-5">
+        <Col span={8}>
           <Card
             title={
               <div className="flex justify-between">
                 <div>Tổng Doanh thu</div>
-                
               </div>
             }
             size="large"
