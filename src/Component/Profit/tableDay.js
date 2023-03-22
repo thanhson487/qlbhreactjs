@@ -4,14 +4,15 @@ import React, { useEffect, useState } from "react";
 import { get, getDatabase, ref } from "firebase/database";
 import _, { forEach, isEmpty, reverse } from "lodash";
 import { formatNumberNav, formatPriceRuleListAssets } from "../../Common";
-
+import { ExportOutlined } from "@ant-design/icons";
+import { CSVLink } from "react-csv";
 function TableDay() {
   const today = dayjs();
 
   const startOfMonth = today.startOf("month");
-  const firstDayOfPrevMonth = startOfMonth.subtract(1, 'month');
+  const firstDayOfPrevMonth = startOfMonth.subtract(1, "month");
   const diffInDays = today.diff(firstDayOfPrevMonth, "day");
- 
+
   const columns = [
     {
       dataIndex: "day",
@@ -64,13 +65,13 @@ function TableDay() {
       render: (value) => {
         if (value >= 0) {
           return (
-            <div style={{ textAlign: "right", color: "#0f0" }}>
+            <div style={{ textAlign: "right", color: "rgb(0 169 0)", fontWeight: "600" }}>
               {formatPriceRuleListAssets(value)}
             </div>
           );
         }
         return (
-          <div style={{ textAlign: "right", color: "#ff3737" }}>
+          <div style={{ textAlign: "right", color: "#ff3737",fontWeight: "600"  }}>
             {formatPriceRuleListAssets(value)}
           </div>
         );
@@ -90,9 +91,9 @@ function TableDay() {
     fetchDataTable();
     // fetchDataProduct();
   }, [db]);
-
+  const [loading, setLoading] = useState(false);
   const fetchDataTable = () => {
-    // setLoading(true);
+    setLoading(true);
     const refers = ref(db, "order/");
     const refersMar = ref(db, "marketing/");
     get(refers)
@@ -112,8 +113,10 @@ function TableDay() {
             data.push(arr);
           }
           setDataOrder([...data]);
+          setLoading(false);
         } else {
           setDataOrder([]);
+          setLoading(true);
         }
       })
       .catch((err) => {
@@ -161,8 +164,6 @@ function TableDay() {
         dayjs(dayjs(dayCurrent, "DD-MM-YYYY").format("YYYY-MM-DD")).valueOf()
     );
     forEach(orderCurrent, (item) => {
-      console.log('🚀 ~ orderCurrent:', orderCurrent)
-      
       totalMoneyDay = totalMoneyDay + formatNumberNav(item.total);
       totalInterest = totalInterest + formatNumberNav(item?.interest);
     });
@@ -190,7 +191,7 @@ function TableDay() {
     forEach(dayToMonth, (day) => {
       const { totalInterest, totalMoneyDay } = getValueDay(day);
       const priceMarketing = getPriceMarketing(day);
-      const profitAndLoss =  totalInterest - priceMarketing;
+      const profitAndLoss = totalInterest - priceMarketing;
       dataTable.push({
         day,
         totalMoneyDay,
@@ -203,14 +204,33 @@ function TableDay() {
     setDataTableDay(reverse(dataTable));
   }, [dataOrder, dayToMonth, dataMarketing]);
 
+  const headers = [
+    { label: "Ngày", key: "day" },
+    { label: "Tổng tiền", key: "totalMoneyDay" },
+    {label:"Doanh thu thực tế",key: "totalInterest"},
+     { label: "Chi phí marketting", key: "priceMarketing" },
+    {
+      label: "Lãi lỗ thực tế",
+      key: "profitAndLoss",
+    },
+  ];
+
   return (
-    <Table
-      columns={columns}
-      dataSource={dataTableDay}
-      pagination={false}
-      scroll={{ y: 700 }}
-      size="middle"
-    />
+    <>
+      <div class="text-base my-3">
+    {dataTableDay&&  <CSVLink data={dataTableDay} headers={headers}>
+          <ExportOutlined /> Xuất Excel
+        </CSVLink>}   
+      </div>
+      <Table
+        columns={columns}
+        dataSource={dataTableDay}
+        pagination={false}
+        scroll={{ y: 700 }}
+        size="middle"
+        loading={loading}
+      />
+    </>
   );
 }
 

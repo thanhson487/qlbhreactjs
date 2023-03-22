@@ -45,7 +45,7 @@ function AddOrder({
             return {
               id: item.id,
               value: item.id,
-              label: item.id,
+              label: item.productName,
             };
           });
           setData(arrValue);
@@ -74,15 +74,30 @@ function AddOrder({
     const price = formList.getFieldValue("price");
     const fee = formList.getFieldValue("fee");
     const quantity = formList.getFieldValue("quantity");
-
     if (isEmpty(price) || isEmpty(fee) || isEmpty(quantity)) {
       formList.setFieldsValue({
         total: null,
       });
       return;
     }
-
-    const total = parseInt(price) - parseInt(fee);
+    let total = 0;
+    if (window.location.hostname === "taianh.netlify.app") {
+      total = parseInt(price) * parseInt(quantity) + parseInt(fee);
+      if (formList.getFieldValue("idProductDeal1")) {
+        total =
+          total +
+          parseInt(formList.getFieldValue("priceDeal1")) *
+            parseInt(formList.getFieldValue("quantityDeal1"));
+      }
+      if (formList.getFieldValue("idProductDeal2")) {
+        total =
+          total +
+          parseInt(formList.getFieldValue("priceDeal2")) *
+            parseInt(formList.getFieldValue("quantityDeal2"));
+      }
+    } else {
+      total = parseInt(price) - parseInt(fee);
+    }
 
     formList.setFieldsValue({
       total: formatMoney(total.toString()),
@@ -91,16 +106,17 @@ function AddOrder({
   useEffect(() => {
     if (!isEditItem) return;
     const cloneItem = { ...itemProduct };
-    
+
     formList.setFieldsValue({
       ...cloneItem,
       date: dayjs(cloneItem.date, "DD-MM-YYYY"),
     });
-  }, [isEditItem,itemProduct]);
+  }, [isEditItem, itemProduct]);
+
   return (
     <div>
       <Modal
-        title="Title"
+        title={isEditItem ? "Sửa đơn hàng" : "Tạo đơn hàng"}
         open={open}
         footer={
           <div>
@@ -138,11 +154,14 @@ function AddOrder({
           initialValues={{
             fee: "0",
             quantity: "1",
+            date: dayjs(dayjs().format("DD-MM-YYYY"), "DD-MM-YYYY"),
+            channel: "Shopee",
+            status: "sending",
           }}
         >
           <Space direction="vertical" size={10} style={{ width: "100%" }}>
             <Row gutter={[8, 8]}>
-              <Col span={8}>
+              <Col span={16}>
                 <Form.Item
                   label="Mã Sản Phẩm"
                   name="idProduct"
@@ -174,7 +193,7 @@ function AddOrder({
                   </Select>
                 </Form.Item>
               </Col>
-              <Col span={8}>
+              <Col span={16}>
                 <Form.Item
                   label="Tên Sản phẩm"
                   name="productName"
@@ -355,83 +374,87 @@ function AddOrder({
 
           <Row gutter={[8, 8]}>
             <Col span={16}>
-           
-                  <Row gutter={[8, 8]}>
-                    <Col span={12}>
-                      <Form.Item
-                        label="Mã Sản Phẩm"
-                        name="idProductDeal1"  
-                        style={{ width: "100%", marginRight: 0 }}
-                      >
-                        <Select
-                          onChange={onChanges}
-                          placeholder="Mã sản phẩm"
-                          allowClear
-                          showSearch
-                          optionFilterProp="lable"
-                          filterOption={(input, option) => {
-                            return (option?.value ?? "")
-                              .toLowerCase()
-                              .includes(input.toLowerCase());
-                          }}
-                        >
-                          {optionSelectProduct.map((item) => (
-                            <Select.Option key={item.id} value={item.value}>
-                              {item.label}
-                            </Select.Option>
-                          ))}
-                        </Select>
-                      </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                      <Form.Item
-                        label="Số lượng"
-                        name="quantityDeal1"
-                       
-                      >
-                        <Input allowClear />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                   <Row gutter={[8, 8]}>
-                    <Col span={12}>
-                      <Form.Item
-                        label="Mã Sản Phẩm"
-                        name="idProductDeal2"
-                    
-                        style={{ width: "100%", marginRight: 0 }}
-                      >
-                        <Select
-                          onChange={onChanges}
-                          placeholder="Mã sản phẩm"
-                          allowClear
-                          showSearch
-                          optionFilterProp="lable"
-                          filterOption={(input, option) => {
-                            return (option?.value ?? "")
-                              .toLowerCase()
-                              .includes(input.toLowerCase());
-                          }}
-                        >
-                          {optionSelectProduct.map((item) => (
-                            <Select.Option key={item.id} value={item.value}>
-                              {item.label}
-                            </Select.Option>
-                          ))}
-                        </Select>
-                      </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                      <Form.Item
-                        label="Số lượng"
-                        name="quantityDeal2"
-                     
-                      >
-                        <Input allowClear />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-          
+              <Row gutter={[8, 8]}>
+                <Col span={12}>
+                  <Form.Item
+                    label="Mã Sản Phẩm"
+                    name="idProductDeal1"
+                    style={{ width: "100%", marginRight: 0 }}
+                  >
+                    <Select
+                      onChange={onChanges}
+                      placeholder="Mã sản phẩm"
+                      allowClear
+                      showSearch
+                      optionFilterProp="lable"
+                      filterOption={(input, option) => {
+                        return (option?.value ?? "")
+                          .toLowerCase()
+                          .includes(input.toLowerCase());
+                      }}
+                    >
+                      {optionSelectProduct.map((item) => (
+                        <Select.Option key={item.id} value={item.value}>
+                          {item.label}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+                {window.location.hostname === "taianh.netlify.app" && (
+                  <Col span={12}>
+                    <Form.Item label="Giá bán" name="priceDeal1">
+                      <Input allowClear />
+                    </Form.Item>
+                  </Col>
+                )}
+                <Col span={12}>
+                  <Form.Item label="Số lượng" name="quantityDeal1">
+                    <Input allowClear />
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Row gutter={[8, 8]}>
+                <Col span={12}>
+                  <Form.Item
+                    label="Mã Sản Phẩm"
+                    name="idProductDeal2"
+                    style={{ width: "100%", marginRight: 0 }}
+                  >
+                    <Select
+                      onChange={onChanges}
+                      placeholder="Mã sản phẩm"
+                      allowClear
+                      showSearch
+                      optionFilterProp="lable"
+                      filterOption={(input, option) => {
+                        return (option?.value ?? "")
+                          .toLowerCase()
+                          .includes(input.toLowerCase());
+                      }}
+                    >
+                      {optionSelectProduct.map((item) => (
+                        <Select.Option key={item.id} value={item.value}>
+                          {item.label}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+
+                {window.location.hostname === "taianh.netlify.app" && (
+                  <Col span={12}>
+                    <Form.Item label="Giá bán" name="priceDeal2">
+                      <Input allowClear />
+                    </Form.Item>
+                  </Col>
+                )}
+                <Col span={12}>
+                  <Form.Item label="Số lượng" name="quantityDeal2">
+                    <Input allowClear />
+                  </Form.Item>
+                </Col>
+              </Row>
             </Col>
           </Row>
         </CustomForm>

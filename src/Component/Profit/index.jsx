@@ -1,6 +1,7 @@
 import { Tabs } from "antd";
 import React, { useState } from "react";
 import TableDay from "./tableDay";
+import TableMonth from "./tableMonth";
 
 const Profit = () => {
   const [activeTab, setActiveTab] = useState("Shopee");
@@ -19,6 +20,9 @@ const Profit = () => {
       >
         <Tabs.TabPane tab="Theo ngày" key="PREPARE">
             <TableDay/>
+        </Tabs.TabPane>
+        <Tabs.TabPane tab="Theo Tháng" key="month">
+            <TableMonth/>
         </Tabs.TabPane>
       </Tabs>
     </div>

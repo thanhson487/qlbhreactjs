@@ -13,6 +13,7 @@ import {
 import AddOrder from "./AddOrder";
 import FillterTable from "./FillterTable";
 import ViewData from "./ViewData";
+import { formatNumberNav } from "../../Common";
 
 function CreateOrder() {
   const { formList, onSubmitForm, resetForm, payload } = useForm();
@@ -106,7 +107,7 @@ function CreateOrder() {
   };
   const handleSync = (item) => {
     let costPrice = getPriceById(item);
-    const interest = parseInt(item?.total) - costPrice;
+    const interest = parseInt(formatNumberNav(item?.total)) - costPrice;
 
     const id = item?.id;
     const refers = ref(db, "order/" + id);
@@ -132,10 +133,81 @@ function CreateOrder() {
     fetchDataTable();
   };
 
+  const handleReturn = (item) => {
+    const { idProduct, idProductDeal1, idProductDeal2 } = item;
+
+    handleDeteleItem(item);
+    if (idProduct) {
+      const refersData = ref(db, "product/" + idProduct);
+      const dataProduct = product.filter((item) => item.id === idProduct);
+      update(refersData, {
+        ...dataProduct[0],
+        total: dataProduct[0].total + parseInt(item.quantity),
+      })
+        .then(() => {
+          toast.success("Cập nhật thành công", {
+            position: "top-center",
+            autoClose: 2000,
+            theme: "light",
+          });
+        })
+        .catch(() => {
+          toast.error("Cập nhật thất bại", {
+            position: "top-center",
+            autoClose: 2000,
+            theme: "light",
+          });
+        });
+    }
+    if (idProductDeal1) {
+      const refersData = ref(db, "product/" + idProductDeal1);
+      const dataProduct = product.filter((item) => item.id === idProductDeal1);
+      update(refersData, {
+        ...dataProduct[0],
+        total: dataProduct[0].total + parseInt(item.quantityDeal1),
+      })
+        .then(() => {
+          toast.success("Cập nhật thành công", {
+            position: "top-center",
+            autoClose: 2000,
+            theme: "light",
+          });
+        })
+        .catch(() => {
+           toast.error("Cập nhật thất bại", {
+            position: "top-center",
+            autoClose: 2000,
+            theme: "light",
+          });
+        });
+    }
+    if (idProductDeal2) {
+      const refersData = ref(db, "product/" + idProductDeal1);
+      const dataProduct = product.filter((item) => item.id === idProductDeal1);
+      update(refersData, {
+        ...dataProduct[0],
+        total: dataProduct[0].total + parseInt(item.idProductDeal2),
+      })
+        .then(() => {
+          toast.success("Cập nhật thành công", {
+            position: "top-center",
+            autoClose: 2000,
+            theme: "light",
+          });
+        })
+        .catch(() => {
+           toast.error("Cập nhật thất bại", {
+            position: "top-center",
+            autoClose: 2000,
+            theme: "light",
+          });
+        });
+    }
+  };
   useEffect(() => {
     if (!payload) return;
     let costPrice = getPriceById(payload);
-    const interest = parseInt(payload?.total) - costPrice;
+    const interest = parseInt(formatNumberNav(payload?.total)) - costPrice;
     if (!isEditItem) {
       Object.keys(payload).forEach(
         (key) => payload[key] === undefined && delete payload[key]
@@ -149,7 +221,7 @@ function CreateOrder() {
       })
         .then(() => {
           const { idProduct, idProductDeal1, idProductDeal2 } = payload;
-          if (!isEmpty(idProduct)) {
+          if (idProduct) {
             const productData = product.filter(
               (item) => item.id === idProduct
             )[0];
@@ -168,7 +240,7 @@ function CreateOrder() {
             });
           }
 
-          if (!isEmpty(idProductDeal1)) {
+          if (idProductDeal1) {
             const refersDataDeal1 = ref(db, "product/" + idProductDeal1);
             const productDataDeal1 = product.filter(
               (item) => item.id === idProductDeal1
@@ -187,7 +259,7 @@ function CreateOrder() {
               });
             });
           }
-          if (!isEmpty(idProductDeal2)) {
+          if (idProductDeal2) {
             const refersDataDeal2 = ref(db, "product/" + idProductDeal2);
             const productData = product.filter(
               (item) => item.id === idProductDeal2
@@ -208,6 +280,7 @@ function CreateOrder() {
 
           formList.resetFields();
           setOpen(false);
+          fetchDataProduct();
         })
         .catch(() => {
           toast.error("Tạo thất bại thử lại", {
@@ -222,6 +295,10 @@ function CreateOrder() {
       Object.keys(payload).forEach(
         (key) => payload[key] === undefined && delete payload[key]
       );
+      console.log('sad',payload,
+        interest,);
+  
+      
       update(refers, {
         ...payload,
         interest,
@@ -237,6 +314,7 @@ function CreateOrder() {
 
         setOpen(false);
         formList.resetFields();
+        fetchDataProduct();
       });
     }
     fetchDataTable();
@@ -282,12 +360,13 @@ function CreateOrder() {
         if (value) {
           let data = [];
           for (const [key, value1] of Object.entries(value)) {
+           
             let arr = {};
             arr = {
               id: key,
               ...value1,
               date: dayjs(
-                dayjs(value1.date, "DD-MM-YYYY").format("YYYY-MM-DD")
+                dayjs(value1.date, "DD/MM/YYYY").format("YYYY-MM-DD")
               ).valueOf(),
             };
             data.push(arr);
@@ -300,7 +379,7 @@ function CreateOrder() {
               },
             ]).map((item) => ({
               ...item,
-              date: dayjs(item.date).format("DD-MM-YYYY"),
+              date: dayjs(item.date).format("DD/MM/YYYY"),
             }))
           );
           setDataTable([...data]);
@@ -330,7 +409,7 @@ function CreateOrder() {
     remove(refers)
       .then(() => {
         toast.success("Xóa thành công", {
-          position: "top-right",
+          position: "top-center",
           autoClose: 2000,
           theme: "light",
         });
@@ -338,12 +417,39 @@ function CreateOrder() {
       })
       .catch(() => {
         toast.error("Xóa thất bại. vui lòng thử lại", {
-          position: "top-right",
+          position: "top-center",
           autoClose: 2000,
           theme: "light",
         });
       });
   };
+  const handleDoneItem = (item) =>{
+  const {id} = item
+  let costPrice = getPriceById(item);
+  const interest = parseInt(formatNumberNav(item?.total)) - costPrice;
+    const refers = ref(db, "order/" + id);
+     Object.keys(item).forEach(
+        (key) => item[key] === undefined && delete item[key]
+      );
+      delete item.id      
+      update(refers, {
+        ...item,
+        status: "success",
+        interest,
+      }).then(() => {
+        formList.resetFields();
+        setItemProduct({});
+        setIsEditItem(false);
+        toast.success("Hoàn thành đơn hàng", {
+          position: "top-center",
+          autoClose: 2000,
+          theme: "light",
+        });
+        formList.resetFields();
+        fetchDataTable();
+
+      });
+  }
 
   const [activeTab, setActiveTab] = useState("Shopee");
   const handleChangeValueTab = (value) => {
@@ -376,6 +482,8 @@ function CreateOrder() {
             handleEditItem={handleEditItem}
             handleDeteleItem={handleDeteleItem}
             handleSync={handleSync}
+            handleReturn={handleReturn}
+            handleDoneItem = {handleDoneItem}
           />
         </Tabs.TabPane>
         <Tabs.TabPane tab="Tiktok" key="TIKTOK">
@@ -384,6 +492,8 @@ function CreateOrder() {
             handleEditItem={handleEditItem}
             handleDeteleItem={handleDeteleItem}
             handleSync={handleSync}
+            handleReturn={handleReturn}
+            handleDoneItem = {handleDoneItem}
           />
         </Tabs.TabPane>
         <Tabs.TabPane tab="Lazada" key="LAZADA">
@@ -392,6 +502,8 @@ function CreateOrder() {
             handleEditItem={handleEditItem}
             handleDeteleItem={handleDeteleItem}
             handleSync={handleSync}
+            handleReturn={handleReturn}
+             handleDoneItem = {handleDoneItem}
           />
         </Tabs.TabPane>
         <Tabs.TabPane tab="Orther" key="ORTHER">
@@ -400,6 +512,8 @@ function CreateOrder() {
             handleEditItem={handleEditItem}
             handleDeteleItem={handleDeteleItem}
             handleSync={handleSync}
+            handleReturn={handleReturn}
+           handleDoneItem = {handleDoneItem}
           />
         </Tabs.TabPane>
       </Tabs>

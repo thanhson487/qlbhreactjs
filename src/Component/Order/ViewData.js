@@ -1,11 +1,24 @@
-import { DeleteOutlined, EditOutlined, RedoOutlined, SyncOutlined } from "@ant-design/icons";
-import { Button, Table, Tabs, Tooltip } from "antd";
+import {
+  CheckCircleOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  RedoOutlined,
+  SyncOutlined,
+} from "@ant-design/icons";
+import { Button, Popconfirm, Table, Tabs, Tooltip } from "antd";
 import React, { useState } from "react";
 import styled from "styled-components";
 import { formatNumberNav, formatPriceRuleListAssets } from "../../Common";
 import { isEmpty } from "lodash";
 
-const ViewData = ({ dataArr, handleEditItem, handleDeteleItem,handleSync }) => {
+const ViewData = ({
+  dataArr,
+  handleEditItem,
+  handleDeteleItem,
+  handleSync,
+  handleReturn,
+  handleDoneItem,
+}) => {
   const [activeTab, setActiveTab] = useState("Shopee");
   const handleChangeValueTab = (value) => {
     setActiveTab(value);
@@ -68,9 +81,8 @@ const ViewData = ({ dataArr, handleEditItem, handleDeteleItem,handleSync }) => {
       key: "interest",
       align: "center",
       width: "100px",
-       render: (value) => {
-  
-       if (!value) return "--";
+      render: (value) => {
+        if (!value) return "--";
         return (
           <div style={{ textAlign: "right" }}>
             {formatPriceRuleListAssets(formatNumberNav(value.toString()))}
@@ -96,7 +108,6 @@ const ViewData = ({ dataArr, handleEditItem, handleDeteleItem,handleSync }) => {
       dataIndex: "productDeal",
       align: "center",
       render: (text, record) => {
-  
         return (
           <div>
             <div>{`${record?.idProductDeal1 || "--"} : ${
@@ -128,6 +139,18 @@ const ViewData = ({ dataArr, handleEditItem, handleDeteleItem,handleSync }) => {
               />
             </Tooltip>
           )}
+          {record.status !== "success" && (
+            <Tooltip title="Hoàn thành đơn hàng">
+              <Button
+                shape="circle"
+                size="small"
+                className="mr-2"
+                icon={<CheckCircleOutlined />}
+                // onClick={() => handleDeteleItem(record)}
+                onClick={() => handleDoneItem(record)}
+              />
+            </Tooltip>
+          )}
 
           <Tooltip title="Xóa">
             <Button
@@ -137,14 +160,18 @@ const ViewData = ({ dataArr, handleEditItem, handleDeteleItem,handleSync }) => {
               onClick={() => handleDeteleItem(record)}
             />
           </Tooltip>
-          {record.status === "success" && (
-            <Tooltip title="Hoàn đơn ">
-              <Button shape="circle" size="small" icon={<RedoOutlined />} />
+
+          <Popconfirm
+            title={"Hoàn hàng"}
+            description={"Bạn có chắc chắn muốn hoàn hàng không"}
+            onConfirm={() => handleReturn(record)}
+            okText="Đồng ý"
+            cancelText="Hủy"
+          >
+            <Tooltip title="Hoàn hàng">
+              <Button shape="circle" size="small" icon={<SyncOutlined />} />
             </Tooltip>
-          )}
-            <Tooltip title="Đồng bộ ">
-              <Button shape="circle" size="small" icon={<SyncOutlined    onClick={() => handleSync(record)}/>} />
-            </Tooltip>
+          </Popconfirm>
         </div>
       ),
     },
@@ -161,11 +188,13 @@ const ViewData = ({ dataArr, handleEditItem, handleDeteleItem,handleSync }) => {
           <StyledTable
             columns={columns}
             bordered
-            pagination={false}
             dataSource={dataArr.filter((item) => item?.status === "waitting")}
             scroll={{
               x: 1500,
-              y: 650,
+              y: 580,
+            }}
+            pagination={{
+              pageSize: 50,
             }}
           />
         </div>
@@ -175,11 +204,13 @@ const ViewData = ({ dataArr, handleEditItem, handleDeteleItem,handleSync }) => {
           <StyledTable
             columns={columns}
             bordered
-            pagination={false}
+            pagination={{
+              pageSize: 50,
+            }}
             dataSource={dataArr.filter((item) => item?.status === "sending")}
             scroll={{
               x: 1500,
-              y: 650,
+              y: 580,
             }}
           />
         </div>
@@ -189,11 +220,13 @@ const ViewData = ({ dataArr, handleEditItem, handleDeteleItem,handleSync }) => {
           <StyledTable
             columns={columns}
             bordered
-            pagination={false}
+            pagination={{
+              pageSize: 50,
+            }}
             dataSource={dataArr.filter((item) => item?.status === "success")}
             scroll={{
               x: 1500,
-              y: 650,
+              y: 500,
             }}
           />
         </div>
@@ -203,11 +236,13 @@ const ViewData = ({ dataArr, handleEditItem, handleDeteleItem,handleSync }) => {
           <StyledTable
             columns={columns}
             bordered
-            pagination={false}
+            pagination={{
+              pageSize: 50,
+            }}
             dataSource={dataArr.filter((item) => item?.status === "")}
             scroll={{
               x: 1500,
-              y: 650,
+              y: 580,
             }}
           />
         </div>
@@ -229,8 +264,5 @@ const StyledTable = styled(Table)`
   }
   .ant-checkbox-indeterminate .ant-checkbox-inner::after {
     background-color: white;
-  }
-  .ant-pagination {
-    display: none !important;
   }
 `;

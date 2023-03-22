@@ -16,7 +16,7 @@ export const optionChannel = [
     label: "Orther",
   },
 ];
-export const firebaseConfigProduct = {
+export const firebaseConfigProductCamLuxury = {
   apiKey: "AIzaSyA-WKRLsSa4HBrfA3itHZa6YH_UsbsOwPM",
   authDomain: "db-quanlybanhang-product.firebaseapp.com",
   databaseURL: "https://db-quanlybanhang-product-default-rtdb.firebaseio.com",
@@ -35,4 +35,24 @@ export const firebaseConfigLocal = {
   messagingSenderId: "862861806123",
   appId: "1:862861806123:web:e82c28108f4233c967386e",
   measurementId: "G-RDP87FZEZM",
+};
+export const firebaseConfigGamCos = {
+  apiKey: "AIzaSyAT3F5BxYdey2Vy_gRsaawDA1CAJ9eBw3Y",
+  authDomain: "gamcosmetic-b4da8.firebaseapp.com",
+  databaseURL: "https://gamcosmetic-b4da8-default-rtdb.firebaseio.com",
+  projectId: "gamcosmetic-b4da8",
+  storageBucket: "gamcosmetic-b4da8.appspot.com",
+  messagingSenderId: "134356119895",
+  appId: "1:134356119895:web:565b14b94fce70ab4ece12",
+  measurementId: "G-TFTKXL8H66"
+};
+export const firebaseConfigTaiAnh = {
+  apiKey: "AIzaSyBmZLJ2IIOSzhZMZFL5tvTJ6Fzem0rK4LY",
+  authDomain: "qlbanhangchutai.firebaseapp.com",
+  databaseURL: "https://qlbanhangchutai-default-rtdb.firebaseio.com",
+  projectId: "qlbanhangchutai",
+  storageBucket: "qlbanhangchutai.appspot.com",
+  messagingSenderId: "214343704354",
+  appId: "1:214343704354:web:00a61b7bd4259e8b2f8f7b",
+  measurementId: "G-T3L0FYKL7Q"
 };

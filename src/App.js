@@ -7,7 +7,12 @@ import React from "react";
 import { Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { firebaseConfigLocal, firebaseConfigProduct } from "./Common/constant";
+import {
+  firebaseConfigLocal,
+  firebaseConfigProductCamLuxury,
+  firebaseConfigGamCos,
+  firebaseConfigTaiAnh,
+} from "./Common/constant";
 import Home from "./Component/Home";
 import Marketing from "./Component/Marketing";
 import MenuRoute from "./Component/Menu/MenuRoute";
@@ -16,15 +21,24 @@ import Product from "./Component/Product";
 import Profit from "./Component/Profit";
 import Warehouse from "./Component/Warehouse";
 
-
 function App() {
   const { Header, Content, Sider } = Layout;
- initializeApp(
-    window.location.hostname === "localhost"
-      ? firebaseConfigLocal
-      : firebaseConfigProduct
+  const renderUrl = (data) =>{
+    if(data ==="localhost"){
+      return firebaseConfigLocal
+    }
+    if(data ==="gamcosmetic.netlify.app"){
+      return firebaseConfigGamCos
+    }
+    if(data ==="camcamluxury.netlify.app"){
+      return firebaseConfigProductCamLuxury
+    }
+    if(data ==="taianh.netlify.app"){
+      return firebaseConfigTaiAnh
+    }
+  }
+  initializeApp(renderUrl( window.location.hostname)
   );
-
 
   return (
     <div className="App">
@@ -61,11 +75,11 @@ function App() {
             >
               <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path= "/doanh-thu" element = {<Profit/>}/>
+                <Route path="/doanh-thu" element={<Profit />} />
                 <Route path="/san-pham" element={<Product />} />
                 <Route path="/nhap-kho" element={<Warehouse />} />
                 <Route path="/don-hang" element={<CreateOrder />} />
-                <Route path="/marketing" element= {<Marketing />} />
+                <Route path="/marketing" element={<Marketing />} />
               </Routes>
             </Content>
           </Layout>

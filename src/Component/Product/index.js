@@ -12,10 +12,13 @@ import {
 } from "./../../Common";
 import AddProductDialog from "./AddProductDialog";
 import ListingSkeletonTable from "../../Common/ListingSkeletonTable";
+import Search from "antd/es/input/Search";
+import { filter, isEmpty } from "lodash";
 const { Title } = Typography;
 function Product() {
   const [db, setDb] = useState();
   const [data, setData] = useState([]);
+  const [dataNotEdit, setDataNotEdit] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -30,7 +33,8 @@ function Product() {
     {
       title: "STT",
       key: "STT",
-      width: "20px",
+      width: "80px",
+      align: "center",
       render: (text, object, index) => {
         return <div>{index + 1}</div>;
       },
@@ -53,6 +57,7 @@ function Product() {
       dataIndex: "total",
       key: "total",
       align: "center",
+      sorter: (a, b) => a.total - b.total,
       render: (value) => {
         if (parseInt(value) < 20) {
           return (
@@ -109,10 +114,11 @@ function Product() {
         const value = snapshot.val();
         if (value) {
           const arrValue = Object.values(value);
-
           setData([...arrValue]);
+          setDataNotEdit([...arrValue]);
         } else {
           setData([]);
+          setDataNotEdit([]);
         }
       })
       .catch((err) => {
@@ -165,6 +171,20 @@ function Product() {
         });
       });
   };
+  const handleFillter = (e) => {
+    console.log(isEmpty(e.target.value));
+    if (isEmpty(e.target.value)) {
+      setData([...dataNotEdit]);
+      return;
+    }
+    const filterDataname = filter(
+      dataNotEdit,
+      (item) =>
+        item.productName.toLowerCase().indexOf(e.target.value.toLowerCase()) >
+        -1
+    );
+    setData([...filterDataname]);
+  };
 
   return (
     <div>
@@ -176,6 +196,14 @@ function Product() {
           Thêm sản phẩm
         </Button>
       </WrapperGroup>
+      <div>
+        <div style={{ fontWeight: "500" }}>Tìm kiếm sản phẩm</div>
+        <Search
+          placeholder="Nhập tên sản phẩm"
+          onChange={handleFillter}
+          style={{ marginTop: "20px", marginBottom: "20px" }}
+        />
+      </div>
       {loading ? (
         <ListingSkeletonTable columns={columns} size={3} />
       ) : (
@@ -184,6 +212,9 @@ function Product() {
           bordered
           pagination={false}
           dataSource={data}
+          scroll={{
+            y: 600,
+          }}
         />
       )}
 
