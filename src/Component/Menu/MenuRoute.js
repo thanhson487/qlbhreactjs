@@ -7,12 +7,13 @@ import {
   ScanOutlined,
   PlusSquareOutlined,
   ShoppingCartOutlined,
-  PoundCircleOutlined
-} from '@ant-design/icons';
-import { Menu } from 'antd';
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import { useNavigate  } from "react-router-dom";
+  PoundCircleOutlined,
+  DollarCircleOutlined,
+} from "@ant-design/icons";
+import { Menu } from "antd";
+import React, { useState } from "react";
+import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
 function getItem(label, key, icon, children, type) {
   return {
     key,
@@ -23,65 +24,66 @@ function getItem(label, key, icon, children, type) {
   };
 }
 const items = [
-  getItem('Trang chủ', '/', <HomeOutlined />),
-  getItem('Sản phẩm', '/san-pham', <ShoppingCartOutlined />),
-  getItem('Nhập kho', '/nhap-kho', <ScanOutlined />),
-  getItem('Đơn hàng', '/don-hang', <PlusSquareOutlined />),
-  getItem("Marketing","/marketing",<PoundCircleOutlined />)
+  getItem("Trang chủ", "/", <HomeOutlined />),
+  getItem("Doanh thu", "/doanh-thu", <DollarCircleOutlined />),
+  getItem("Sản phẩm", "/san-pham", <ShoppingCartOutlined />),
+  getItem("Nhập kho", "/nhap-kho", <ScanOutlined />),
+  getItem("Đơn hàng", "/don-hang", <PlusSquareOutlined />),
+  getItem("Marketing", "/marketing", <PoundCircleOutlined />),
 ];
 function MenuRoute() {
-  const navigate = useNavigate()
-    const [collapsed, setCollapsed] = useState(false);
+  const navigate = useNavigate();
+  const [collapsed, setCollapsed] = useState(false);
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);
   };
 
-
-  const handleClickMenu = ({ item, key, keyPath, domEvent }) =>{
-
-  navigate(key)
-  }
+  const handleClickMenu = ({ item, key, keyPath, domEvent }) => {
+    navigate(key);
+  };
   return (
-    <div style={{
+    <div
+      style={{
         width: 256,
-        height: '100%',
-        position:'relative',
-      }}>
-       
+        height: "100%",
+        position: "relative",
+      }}
+    >
       <CustomMenu
-        defaultSelectedKeys={['1']}
-        defaultOpenKeys={['sub1']}
+        defaultSelectedKeys={["1"]}
+        defaultOpenKeys={["sub1"]}
         mode="inline"
         theme="dark"
         inlineCollapsed={false}
         items={items}
-        onClick = {handleClickMenu}
+        onClick={handleClickMenu}
       />
-      {collapsed ?<LeftOutlined
-      onClick={toggleCollapsed}
-      style={{
-        cursor: 'pointer',
-      position:'absolute',
-      bottom:'10px',
-      color:'white'
-      }}
-      />
-      : <RightOutlined
-      onClick={toggleCollapsed}
-      style={{
-        cursor:'pointer',
-      position:'absolute',
-      bottom:'10px',
-      color:'white'
-      }}
-      />
-      
-      }
+      {collapsed ? (
+        <LeftOutlined
+          onClick={toggleCollapsed}
+          style={{
+            cursor: "pointer",
+            position: "absolute",
+            bottom: "10px",
+            color: "white",
+          }}
+        />
+      ) : (
+        <RightOutlined
+          onClick={toggleCollapsed}
+          style={{
+            cursor: "pointer",
+            position: "absolute",
+            bottom: "10px",
+            color: "white",
+          }}
+        />
+      )}
     </div>
-  )
+  );
 }
 
-export default MenuRoute
-const CustomMenu= styled(Menu)`
-          height:calc(100vh - 50px);
-`
+export default MenuRoute;
+const CustomMenu = styled(Menu)`
+  height: calc(100vh - 50px);
+`;
