@@ -213,7 +213,7 @@ function Warehouse() {
       productName: product.productName,
     });
   };
-  console.log("optionSelectProduct", dataTable);
+
 
   return (
     <div>

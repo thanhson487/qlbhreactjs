@@ -3,19 +3,19 @@ import "./App.css";
 // import IndexMenu from './component/Menu/indexMenu';
 import { Layout } from "antd";
 import { initializeApp } from "firebase/app";
-import { getDatabase } from "firebase/database";
-import React, { useState } from "react";
+import React from "react";
 import { Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Home from "./Component/Home";
-import MenuRoute from "./Component/Menu/MenuRoute";
-import Product from "./Component/Product";
-import Warehouse from "./Component/Warehouse";
-import CreateOrder from "./Component/Order/TableOrder";
 import { firebaseConfigLocal, firebaseConfigProduct } from "./Common/constant";
+import Home from "./Component/Home";
 import Marketing from "./Component/Marketing";
-// import { Breadcrumb, Layout, theme } from 'antd';
+import MenuRoute from "./Component/Menu/MenuRoute";
+import CreateOrder from "./Component/Order/TableOrder";
+import Product from "./Component/Product";
+import Profit from "./Component/Profit";
+import Warehouse from "./Component/Warehouse";
+
 
 function App() {
   const { Header, Content, Sider } = Layout;
@@ -61,6 +61,7 @@ function App() {
             >
               <Routes>
                 <Route path="/" element={<Home />} />
+                <Route path= "/doanh-thu" element = {<Profit/>}/>
                 <Route path="/san-pham" element={<Product />} />
                 <Route path="/nhap-kho" element={<Warehouse />} />
                 <Route path="/don-hang" element={<CreateOrder />} />
