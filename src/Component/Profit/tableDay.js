@@ -90,9 +90,9 @@ function TableDay() {
     fetchDataTable();
     // fetchDataProduct();
   }, [db]);
-
+  const [loading,setLoading]=useState(false)
   const fetchDataTable = () => {
-    // setLoading(true);
+    setLoading(true);
     const refers = ref(db, "order/");
     const refersMar = ref(db, "marketing/");
     get(refers)
@@ -112,8 +112,10 @@ function TableDay() {
             data.push(arr);
           }
           setDataOrder([...data]);
+          setLoading(false)
         } else {
           setDataOrder([]);
+           setLoading(true)
         }
       })
       .catch((err) => {
@@ -210,6 +212,7 @@ function TableDay() {
       pagination={false}
       scroll={{ y: 700 }}
       size="middle"
+      loading={loading}
     />
   );
 }
