@@ -349,7 +349,7 @@ function CreateOrder() {
         </Tabs.TabPane>
         <Tabs.TabPane tab="Orther" key="ORTHER">
           <ViewData
-            dataArr={dataTable.filter((item) => item.channel === "OrtOrtherer")}
+            dataArr={dataTable.filter((item) => item.channel === "Orther")}
             handleEditItem={handleEditItem}
             handleDeteleItem={handleDeteleItem}
           />
