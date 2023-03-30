@@ -1,14 +1,16 @@
-import { DeleteOutlined, EditOutlined, RedoOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, RedoOutlined, SyncOutlined } from "@ant-design/icons";
 import { Button, Table, Tabs, Tooltip } from "antd";
 import React, { useState } from "react";
 import styled from "styled-components";
 import { formatNumberNav, formatPriceRuleListAssets } from "../../Common";
+import { isEmpty } from "lodash";
 
-const ViewData = ({ dataArr, handleEditItem, handleDeteleItem }) => {
+const ViewData = ({ dataArr, handleEditItem, handleDeteleItem,handleSync }) => {
   const [activeTab, setActiveTab] = useState("Shopee");
   const handleChangeValueTab = (value) => {
     setActiveTab(value);
   };
+
   const columns = [
     {
       title: "STT",
@@ -61,11 +63,20 @@ const ViewData = ({ dataArr, handleEditItem, handleDeteleItem }) => {
       },
     },
     {
-      title: "Phụ phí",
-      dataIndex: "fee",
-      key: "fee",
+      title: "Doanh số",
+      dataIndex: "interest",
+      key: "interest",
       align: "center",
       width: "100px",
+       render: (value) => {
+  
+       if (!value) return "--";
+        return (
+          <div style={{ textAlign: "right" }}>
+            {formatPriceRuleListAssets(formatNumberNav(value.toString()))}
+          </div>
+        );
+      },
     },
     {
       title: "Số lượng",
@@ -85,7 +96,7 @@ const ViewData = ({ dataArr, handleEditItem, handleDeteleItem }) => {
       dataIndex: "productDeal",
       align: "center",
       render: (text, record) => {
-        console.log(record);
+  
         return (
           <div>
             <div>{`${record?.idProductDeal1 || "--"} : ${
@@ -131,6 +142,9 @@ const ViewData = ({ dataArr, handleEditItem, handleDeteleItem }) => {
               <Button shape="circle" size="small" icon={<RedoOutlined />} />
             </Tooltip>
           )}
+            <Tooltip title="Đồng bộ ">
+              <Button shape="circle" size="small" icon={<SyncOutlined    onClick={() => handleSync(record)}/>} />
+            </Tooltip>
         </div>
       ),
     },

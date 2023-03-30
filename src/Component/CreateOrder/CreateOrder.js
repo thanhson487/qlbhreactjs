@@ -64,7 +64,7 @@ function CreateOrder() {
             arr={id:key,...value1}
             data.push(arr)
           }
-          // console.log(data);
+    
           setDataTable([...data]);
         } else {
           setDataTable([]);
@@ -79,7 +79,7 @@ function CreateOrder() {
 
   };
 
-// console.log(dataTable);
+
 
  useEffect(() => {
     if (!db) return;
@@ -147,20 +147,19 @@ function CreateOrder() {
       key: "status",
       align: "center",
       render:(text,record)=>{
+        // eslint-disable-next-line default-case
         switch(record?.status){
           case 'waitting': return <ClockCircleOutlined onClick={()=>{setOpen(true); setFix(true);setItemProduct(record)}} />
           case 'sending':return <RedoOutlined  onClick={()=>{setOpen(true); setFix(true);setItemProduct(record)}} />
           case 'success': return <CheckCircleOutlined onClick={()=>{setOpen(true); setFix(true);setItemProduct(record)}} />
         }
         return( <div onClick={()=>{console.log(1);}} >{record?.status}</div>)
-        // console.log(record);
+  
       }
 
     },
   ];
-  const handleFixStatus=()=>{
 
-  }
   return (
     <div>
       <CustomButton>

@@ -1,24 +1,117 @@
-import React from "react";
-import { Button, Table, Tag, Tooltip } from "antd";
-import { get, getDatabase, ref, set, update } from "firebase/database";
-import { useEffect, useState } from "react";
+import { DeleteOutlined } from "@ant-design/icons";
+import { Button, Table, Tooltip } from "antd";
+import { get, getDatabase, ref, remove, set } from "firebase/database";
+import { nanoid } from "nanoid";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import styled from "styled-components";
-import useForm from "../../Common/useForm";
 import ListingSkeletonTable from "../../Common/ListingSkeletonTable";
+import { default as useForm } from "../../Common/useForm";
+import DialogMarketing from "./DialogMarketing";
+
+import dayjs from "dayjs";
+import _ from "lodash";
 import {
-  CheckCircleOutlined,
-  DeleteOutlined,
-  EditOutlined,
-} from "@ant-design/icons";
-import { formatNumberNav, formatPriceRuleListAssets } from "../../Common";
-import { nanoid } from "nanoid";
+  formatDDtoValue,
+  formatNumberNav,
+  formatPriceRuleListAssets,
+} from "../../Common";
 
 function Marketing(props) {
+  const { formList, onSubmitForm, resetForm, payload } = useForm();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [dataTable, setDataTable] = useState([]);
-  const [totalPrice, setTotalPrice] = useState(0);
+
+  const [db, setDb] = useState();
+  useEffect(() => {
+    const db = getDatabase();
+    setDb(db);
+  }, []);
+  useEffect(() => {
+    if (!db) return;
+    fetchDataTable();
+  }, [db]);
+  useEffect(() => {
+    if (!payload) return;
+    Object.keys(payload).forEach(
+      (key) => payload[key] === undefined && delete payload[key]
+    );
+    const id = nanoid();
+    const refers = ref(db, "marketing/" + id);
+    set(refers, {
+      ...payload,
+      dateCampaign: formatDDtoValue(payload.date),
+    })
+      .then(() => {
+        toast.success("Tạo chiến dịch thành công", {
+          position: "top-center",
+          autoClose: 2000,
+          theme: "light",
+        });
+        formList.resetFields();
+        setOpen(false);
+      })
+      .finally(() => {
+        fetchDataTable();
+      });
+  }, [payload]);
+
+  const fetchDataTable = () => {
+    setLoading(true);
+    const refers = ref(db, "marketing/");
+    get(refers)
+      .then((snapshot) => {
+        const value = snapshot.val();
+        if (value) {
+          let data = [];
+          for (const [key, value1] of Object.entries(value)) {
+            let arr = {};
+            arr = {
+              id: key,
+              ...value1,
+            };
+            data.push(arr);
+          }
+          data = _.reverse(
+            _.sortBy(data, [
+              function (o) {
+                return o.dateCampaign;
+              },
+            ])
+          );
+          setDataTable([...data]);
+        } else {
+          setDataTable([]);
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+  const handleDeteleItem = (item) => {
+    const { id } = item;
+    const refers = ref(db, "marketing/" + id);
+    remove(refers)
+      .then(() => {
+        toast.success("Xóa thành công", {
+          position: "top-right",
+          autoClose: 2000,
+          theme: "light",
+        });
+        fetchDataTable();
+      })
+      .catch(() => {
+        toast.error("Xóa thất bại. vui lòng thử lại", {
+          position: "top-right",
+          autoClose: 2000,
+          theme: "light",
+        });
+      });
+  };
   const columns = [
     {
       title: "STT",
@@ -28,56 +121,31 @@ function Marketing(props) {
         return <div>{index + 1}</div>;
       },
     },
-
     {
-      title: "Mã sản phẩm",
-      dataIndex: "id",
-      key: "id",
-      align: "center",
-    },
-    {
-      title: "Tên sản phẩm",
-      dataIndex: "productName",
-      key: "productName",
-      align: "center",
-    },
-    {
-      title: "Số lượng",
-      dataIndex: "total",
-      key: "total",
-      align: "center",
-    },
-
-    {
-      title: "Giá sản phẩm",
-      dataIndex: "price",
-      key: "price",
-      align: "center",
+      title: "Ngày tạo",
+      dataIndex: "dateCampaign",
+      key: "dateCampaign",
       render: (value) => {
-        console.log("value", typeof value, value);
-
+        return dayjs(value).format("DD-MM-YYYY");
+      },
+      align: "center",
+    },
+    {
+      title: "Tên chiến dịch",
+      dataIndex: "nameCampaign",
+      key: "nameCampaign",
+      align: "center",
+    },
+    {
+      title: "Chi phí",
+      dataIndex: "priceCampaign",
+      render: (value) => {
         return (
           <div style={{ textAlign: "right" }}>
             {formatPriceRuleListAssets(formatNumberNav(value.toString()))}
           </div>
         );
       },
-    },
-
-    {
-      title: "Tổng tiền",
-      dataIndex: "total",
-      key: "total",
-      align: "center",
-      render: (text, record) => (
-        <div>
-          {formatPriceRuleListAssets(
-            formatNumberNav(
-              (parseInt(record.total) * parseInt(record.price)).toString()
-            )
-          )}
-        </div>
-      ),
     },
 
     {
@@ -92,7 +160,7 @@ function Marketing(props) {
               shape="circle"
               size="small"
               icon={<DeleteOutlined />}
-              // onClick={() => handleDeteleItem(record)}
+              onClick={() => handleDeteleItem(record)}
             />
           </Tooltip>
         </div>
@@ -123,15 +191,17 @@ function Marketing(props) {
             scroll={{
               y: 600,
             }}
-            footer={() => (
-              <div className="flex justify-between">
-                <div className="text-base">Tổng tiền</div>
-                <div className="text-xl font-bold">{totalPrice}</div>{" "}
-              </div>
-            )}
           />
         </div>
       )}
+      <DialogMarketing
+        open={open}
+        formList={formList}
+        onSubmitForm={onSubmitForm}
+        resetForm={resetForm}
+        setOpen={setOpen}
+        db={db}
+      />
     </div>
   );
 }

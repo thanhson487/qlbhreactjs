@@ -13,8 +13,10 @@ import {
 import AddOrder from "./AddOrder";
 import FillterTable from "./FillterTable";
 import ViewData from "./ViewData";
+import queryString from "query-string";
 function CreateOrder() {
   const { formList, onSubmitForm, resetForm, payload } = useForm();
+
   const {
     formList: formLists,
     onSubmitForm: onSubmitForms,
@@ -79,10 +81,61 @@ function CreateOrder() {
       setDataTable(filterDataname);
     }
   }, [dataFilter]);
+  const getPriceById = (item) => {
+    const {
+      idProduct,
+      idProductDeal1,
+      idProductDeal2,
+      quantity,
+      quantityDeal1,
+      quantityDeal2,
+    } = item;
+    const data = [
+      { id: idProduct, quantity: quantity },
+      { id: idProductDeal1, quantity: quantityDeal1 },
+      { id: idProductDeal2, quantity: quantityDeal2 },
+    ];
+    const filteredData = data.filter((item) => !isEmpty(item?.id));
+
+    let total = 0;
+    filteredData.forEach((item) => {
+      const productData = product.filter((data) => data.id === item.id)[0];
+      total = total + productData.price * parseInt(item.quantity);
+    });
+    return total;
+  };
+  const handleSync = (item) => {
+    let costPrice = getPriceById(item);
+    const interest = parseInt(item?.price) - costPrice;
+
+    const id = item?.id;
+    const refers = ref(db, "order/" + id);
+    Object.keys(item).forEach(
+      (key) => item[key] === undefined && delete payload[key]
+    );
+    update(refers, {
+      ...item,
+      interest,
+    }).then(() => {
+      formList.resetFields();
+      setItemProduct({});
+      setIsEditItem(false);
+      toast.success("Sửa đơn hàng thành công", {
+        position: "top-center",
+        autoClose: 2000,
+        theme: "light",
+      });
+
+      setOpen(false);
+      formList.resetFields();
+    });
+    fetchDataTable();
+  };
 
   useEffect(() => {
     if (!payload) return;
-
+    let costPrice = getPriceById(payload);
+    const interest = parseInt(payload?.price) - costPrice;
     if (!isEditItem) {
       Object.keys(payload).forEach(
         (key) => payload[key] === undefined && delete payload[key]
@@ -92,6 +145,7 @@ function CreateOrder() {
       const refers = ref(db, "order/" + id);
       set(refers, {
         ...payload,
+        interest,
       })
         .then(() => {
           const { idProduct, idProductDeal1, idProductDeal2 } = payload;
@@ -170,6 +224,7 @@ function CreateOrder() {
       );
       update(refers, {
         ...payload,
+        interest,
       }).then(() => {
         formList.resetFields();
         setItemProduct({});
@@ -294,7 +349,6 @@ function CreateOrder() {
   const handleChangeValueTab = (value) => {
     setActiveTab(value);
   };
-  console.log(dataTable);
 
   return (
     <div>
@@ -309,16 +363,6 @@ function CreateOrder() {
         onSubmitForm={onSubmitForms}
         payload={payloads}
       />
-      {/* {loading ? (
-        <ListingSkeletonTable columns={columns} size={3} />
-      ) : (
-        <div>
-          <div className="mb-3 ml-2 bold">
-            {`Tổng đơn hàng ${dataTable.length}`}{" "}
-          </div>
-         
-        </div>
-      )} */}
       <Tabs
         type="card"
         size="large"
@@ -331,6 +375,7 @@ function CreateOrder() {
             dataArr={dataTable.filter((item) => item.channel === "Shopee")}
             handleEditItem={handleEditItem}
             handleDeteleItem={handleDeteleItem}
+            handleSync={handleSync}
           />
         </Tabs.TabPane>
         <Tabs.TabPane tab="Tiktok" key="TIKTOK">
@@ -338,6 +383,7 @@ function CreateOrder() {
             dataArr={dataTable.filter((item) => item.channel === "Tiktok")}
             handleEditItem={handleEditItem}
             handleDeteleItem={handleDeteleItem}
+            handleSync={handleSync}
           />
         </Tabs.TabPane>
         <Tabs.TabPane tab="Lazada" key="LAZADA">
@@ -345,6 +391,7 @@ function CreateOrder() {
             dataArr={dataTable.filter((item) => item.channel === "Lazada")}
             handleEditItem={handleEditItem}
             handleDeteleItem={handleDeteleItem}
+            handleSync={handleSync}
           />
         </Tabs.TabPane>
         <Tabs.TabPane tab="Orther" key="ORTHER">
@@ -352,6 +399,7 @@ function CreateOrder() {
             dataArr={dataTable.filter((item) => item.channel === "Orther")}
             handleEditItem={handleEditItem}
             handleDeteleItem={handleDeteleItem}
+            handleSync={handleSync}
           />
         </Tabs.TabPane>
       </Tabs>

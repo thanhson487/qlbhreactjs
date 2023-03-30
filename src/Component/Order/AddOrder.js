@@ -70,7 +70,7 @@ function AddOrder({
       productName: product.productName,
     });
   };
-  const handleFieldChange = (changedFields) => {
+  const handleFieldChange = () => {
     const price = formList.getFieldValue("price");
     const fee = formList.getFieldValue("fee");
     const quantity = formList.getFieldValue("quantity");
@@ -82,7 +82,7 @@ function AddOrder({
       return;
     }
 
-    const total = parseInt(price) * parseInt(quantity) - parseInt(fee);
+    const total = parseInt(price) - parseInt(fee);
 
     formList.setFieldsValue({
       total: formatMoney(total.toString()),
@@ -355,14 +355,12 @@ function AddOrder({
 
           <Row gutter={[8, 8]}>
             <Col span={16}>
-              <StyledCollapse >
-                <StyledPanel header="Sản phẩm mua kèm" key="1">
+           
                   <Row gutter={[8, 8]}>
                     <Col span={12}>
                       <Form.Item
                         label="Mã Sản Phẩm"
-                        name="idProductDeal1"
-                       
+                        name="idProductDeal1"  
                         style={{ width: "100%", marginRight: 0 }}
                       >
                         <Select
@@ -433,8 +431,7 @@ function AddOrder({
                       </Form.Item>
                     </Col>
                   </Row>
-                </StyledPanel>
-              </StyledCollapse>
+          
             </Col>
           </Row>
         </CustomForm>
@@ -448,13 +445,4 @@ const CustomForm = styled(Form)`
   .ant-form-item {
     margin-bottom: 5px;
   }
-`;
-const StyledPanel = styled(Panel)`
-  .ant-collapse-content {
-    background: transparent;
-  }
-`;
-
-const StyledCollapse = styled(Collapse)`
- 
 `;

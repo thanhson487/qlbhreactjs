@@ -60,7 +60,7 @@ function Warehouse() {
       key: "price",
       align: "center",
       render: (value) => {
-        console.log("value", typeof value, value);
+    
 
         return (
           <div style={{ textAlign: "right" }}>
@@ -189,7 +189,7 @@ function Warehouse() {
         setLoading(false);
       });
   };
-  console.log(dataTable);
+ 
   useEffect(() => {
     if (!db) return;
     fetchData();

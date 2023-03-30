@@ -5590,6 +5590,11 @@
   "resolved" "https://registry.npmjs.org/decode-uri-component/-/decode-uri-component-0.2.2.tgz"
   "version" "0.2.2"
 
+"decode-uri-component@^0.4.1":
+  "integrity" "sha512-+8VxcR21HhTy8nOt6jf20w0c9CADrw1O8d+VZ/YzzCt4bJ3uBjw+D1q2osAB8RnpwwaeYBxy0HyKQxD5JBMuuQ=="
+  "resolved" "https://registry.npmjs.org/decode-uri-component/-/decode-uri-component-0.4.1.tgz"
+  "version" "0.4.1"
+
 "decompress-response@^3.3.0":
   "integrity" "sha512-BzRPQuY1ip+qDonAOz42gRm/pg9F768C+npV/4JOsxRC2sq+Rlk+Q4ZCAsOhnIaMrgarILY+RMUIvMmmX1qAEA=="
   "resolved" "https://registry.npmjs.org/decompress-response/-/decompress-response-3.3.0.tgz"
@@ -6961,6 +6966,11 @@
   "version" "7.0.1"
   dependencies:
     "to-regex-range" "^5.0.1"
+
+"filter-obj@^5.1.0":
+  "integrity" "sha512-qWeTREPoT7I0bifpPUXtxkZJ1XJzxWtfoWWkdVGqa+eCr3SHW/Ocp89o8vLvbUuQnadybJpjOKu4V+RwO6sGng=="
+  "resolved" "https://registry.npmjs.org/filter-obj/-/filter-obj-5.1.0.tgz"
+  "version" "5.1.0"
 
 "finalhandler@1.2.0":
   "integrity" "sha512-5uXcUVftlQMFnWC9qu/svkWv3GTd2PfUhK/3PLkYNAe7FbqJMt3515HaxE6eRL74GdsriiwujiawdaB1BpEISg=="
@@ -11903,6 +11913,15 @@
   dependencies:
     "side-channel" "^1.0.4"
 
+"query-string@^8.1.0":
+  "integrity" "sha512-BFQeWxJOZxZGix7y+SByG3F36dA0AbTy9o6pSmKFcFz7DAj0re9Frkty3saBn3nHo3D0oZJ/+rx3r8H8r8Jbpw=="
+  "resolved" "https://registry.npmjs.org/query-string/-/query-string-8.1.0.tgz"
+  "version" "8.1.0"
+  dependencies:
+    "decode-uri-component" "^0.4.1"
+    "filter-obj" "^5.1.0"
+    "split-on-first" "^3.0.0"
+
 "querystring-es3@^0.2.0":
   "integrity" "sha512-773xhDQnZBMFobEiztv8LIl70ch5MSF/jUQVlhwFyBILqq96anmoctVIYz+ZRp0qbCKATTn6ev02M3r7Ga5vqA=="
   "resolved" "https://registry.npmjs.org/querystring-es3/-/querystring-es3-0.2.1.tgz"
@@ -13648,6 +13667,11 @@
     "http-deceiver" "^1.2.7"
     "select-hose" "^2.0.0"
     "spdy-transport" "^3.0.0"
+
+"split-on-first@^3.0.0":
+  "integrity" "sha512-qxQJTx2ryR0Dw0ITYyekNQWpz6f8dGd7vffGNflQQ3Iqj9NJ6qiZ7ELpZsJ/QBhIVAiDfXdag3+Gp8RvWa62AA=="
+  "resolved" "https://registry.npmjs.org/split-on-first/-/split-on-first-3.0.0.tgz"
+  "version" "3.0.0"
 
 "split-string@^3.0.1", "split-string@^3.0.2":
   "integrity" "sha512-NzNVhJDYpwceVVii8/Hu6DKfD2G+NrQHlS/V/qgv763EYudVwEcMQNxd2lh+0VrUByXN/oJkl5grOhYWvQUYiw=="

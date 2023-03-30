@@ -9,8 +9,9 @@ function TableDay() {
   const today = dayjs();
 
   const startOfMonth = today.startOf("month");
-  const diffInDays = today.diff(startOfMonth, "day");
-
+  const firstDayOfPrevMonth = startOfMonth.subtract(1, 'month');
+  const diffInDays = today.diff(firstDayOfPrevMonth, "day");
+ 
   const columns = [
     {
       dataIndex: "day",
@@ -21,7 +22,6 @@ function TableDay() {
       dataIndex: "totalMoneyDay",
       title: "Tổng tiền",
       render: (value) => {
-        console.log(value, "ssss");
         return (
           <div style={{ textAlign: "right" }}>
             {formatPriceRuleListAssets(value)}
@@ -37,15 +37,49 @@ function TableDay() {
       title: "doanh thu thực tế",
       dataIndex: "totalInterest",
       align: "center",
+      render: (value) => {
+        return (
+          <div style={{ textAlign: "right" }}>
+            {formatPriceRuleListAssets(value)}
+          </div>
+        );
+      },
     },
     {
-      dataIndex: "marketing",
+      dataIndex: "priceMarketing",
       title: "Chi phí marketing",
       align: "center",
+      render: (value) => {
+        return (
+          <div style={{ textAlign: "right" }}>
+            {formatPriceRuleListAssets(value)}
+          </div>
+        );
+      },
+    },
+    {
+      dataIndex: "profitAndLoss",
+      title: "Lãi/Lỗ",
+      align: "center",
+      render: (value) => {
+        if (value >= 0) {
+          return (
+            <div style={{ textAlign: "right", color: "#0f0" }}>
+              {formatPriceRuleListAssets(value)}
+            </div>
+          );
+        }
+        return (
+          <div style={{ textAlign: "right", color: "#ff3737" }}>
+            {formatPriceRuleListAssets(value)}
+          </div>
+        );
+      },
     },
   ];
 
   const [dataOrder, setDataOrder] = useState([]);
+  const [dataMarketing, setDataMarketing] = useState([]);
   const [db, setDb] = useState();
   useEffect(() => {
     const db = getDatabase();
@@ -60,6 +94,7 @@ function TableDay() {
   const fetchDataTable = () => {
     // setLoading(true);
     const refers = ref(db, "order/");
+    const refersMar = ref(db, "marketing/");
     get(refers)
       .then((snapshot) => {
         const value = snapshot.val();
@@ -77,6 +112,24 @@ function TableDay() {
             data.push(arr);
           }
           setDataOrder([...data]);
+        } else {
+          setDataOrder([]);
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+      })
+      .finally(() => {});
+
+    get(refersMar)
+      .then((snapshot) => {
+        const value = snapshot.val();
+        if (value) {
+          let data = [];
+          for (const [key, value1] of Object.entries(value)) {
+            data.push(value1);
+          }
+          setDataMarketing([...data]);
         } else {
           setDataOrder([]);
         }
@@ -109,26 +162,44 @@ function TableDay() {
     );
     forEach(orderCurrent, (item) => {
       totalMoneyDay = totalMoneyDay + formatNumberNav(item.total);
+      totalInterest = totalInterest + formatNumberNav(item?.interest || 0);
     });
     return {
       totalInterest,
       totalMoneyDay,
     };
   };
+  const getPriceMarketing = (day) => {
+    let priceMar = 0;
+    const priceCurrent = dataMarketing.filter(
+      (item) =>
+        item.dateCampaign ===
+        dayjs(dayjs(day, "DD-MM-YYYY").format("YYYY-MM-DD")).valueOf()
+    );
+    forEach(priceCurrent, (item) => {
+      priceMar = priceMar + formatNumberNav(item?.priceCampaign || 0);
+    });
+    return priceMar;
+  };
   useEffect(() => {
-    if (!dataOrder && isEmpty(dayToMonth)) return;
+    if (!dataOrder || isEmpty(dayToMonth) || isEmpty(dataMarketing)) return;
+
     let dataTable = [];
     forEach(dayToMonth, (day) => {
       const { totalInterest, totalMoneyDay } = getValueDay(day);
+      const priceMarketing = getPriceMarketing(day);
+      const profitAndLoss =  totalInterest - priceMarketing;
       dataTable.push({
         day,
         totalMoneyDay,
         totalInterest,
+        priceMarketing,
+        profitAndLoss,
       });
     });
 
     setDataTableDay(reverse(dataTable));
-  }, [dataOrder, dayToMonth]);
+  }, [dataOrder, dayToMonth, dataMarketing]);
 
   return (
     <Table
@@ -136,6 +207,7 @@ function TableDay() {
       dataSource={dataTableDay}
       pagination={false}
       scroll={{ y: 700 }}
+      size="middle"
     />
   );
 }

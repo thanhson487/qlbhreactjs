@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 export const validateEmty = (value) => {
   if (value.length > 0) {
     return Promise.resolve();
@@ -6,11 +8,10 @@ export const validateEmty = (value) => {
   return Promise.reject(new Error("Vui lòng nhập thông tin"));
 };
 export const validateNumbers = (value) => {
- 
-  if(value.length ===0){
-     return Promise.reject(new Error("Không để trống thông tin"));
+  if (value.length === 0) {
+    return Promise.reject(new Error("Không để trống thông tin"));
   }
-  if (value.match(/^[0-9]*$/g)!==null) {
+  if (value.match(/^[0-9]*$/g) !== null) {
     return Promise.resolve();
   }
 
@@ -29,7 +30,7 @@ export const formatCurrency = (value) => {
 };
 export const formatNumberNav = (value) => {
   if (!value) return "";
-  return Number(value.replaceAll(/,/g, ""));
+  return Number(value.toString().replaceAll(/,/g, ""));
 };
 export const formatMoney = (num) => {
   if (num === undefined || num === null) return "";
@@ -60,4 +61,10 @@ const formatValueCurrency = (absValue) => {
     )}k tỷ`;
   }
   return 0;
+};
+export const formatDDtoValue = (date) => {
+  const valueDate = dayjs(
+    dayjs(date, "DD-MM-YYYY").format("YYYY-MM-DD")
+  ).valueOf();
+  return valueDate
 };

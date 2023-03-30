@@ -9,7 +9,6 @@ export default function useFormGroup() {
 
   const onSubmitForm = () => {
     const formValues = formList.getFieldsValue();
-
     const date = formValues?.date
       ? dayjs(formValues.date).format("DD/MM/YYYY")
       : undefined;
