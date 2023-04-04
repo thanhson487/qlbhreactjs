@@ -161,8 +161,10 @@ function TableDay() {
         dayjs(dayjs(dayCurrent, "DD-MM-YYYY").format("YYYY-MM-DD")).valueOf()
     );
     forEach(orderCurrent, (item) => {
+      console.log('🚀 ~ orderCurrent:', orderCurrent)
+      
       totalMoneyDay = totalMoneyDay + formatNumberNav(item.total);
-      totalInterest = totalInterest + formatNumberNav(item?.interest || 0);
+      totalInterest = totalInterest + formatNumberNav(item?.interest);
     });
     return {
       totalInterest,

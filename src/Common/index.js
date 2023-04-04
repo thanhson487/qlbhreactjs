@@ -29,7 +29,7 @@ export const formatCurrency = (value) => {
     .join("");
 };
 export const formatNumberNav = (value) => {
-  if (!value) return "";
+  if (!value) return 0;
   return Number(value.toString().replaceAll(/,/g, ""));
 };
 export const formatMoney = (num) => {

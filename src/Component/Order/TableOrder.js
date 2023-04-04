@@ -13,7 +13,7 @@ import {
 import AddOrder from "./AddOrder";
 import FillterTable from "./FillterTable";
 import ViewData from "./ViewData";
-import queryString from "query-string";
+
 function CreateOrder() {
   const { formList, onSubmitForm, resetForm, payload } = useForm();
 
@@ -106,7 +106,7 @@ function CreateOrder() {
   };
   const handleSync = (item) => {
     let costPrice = getPriceById(item);
-    const interest = parseInt(item?.price) - costPrice;
+    const interest = parseInt(item?.total) - costPrice;
 
     const id = item?.id;
     const refers = ref(db, "order/" + id);
@@ -135,7 +135,7 @@ function CreateOrder() {
   useEffect(() => {
     if (!payload) return;
     let costPrice = getPriceById(payload);
-    const interest = parseInt(payload?.price) - costPrice;
+    const interest = parseInt(payload?.total) - costPrice;
     if (!isEditItem) {
       Object.keys(payload).forEach(
         (key) => payload[key] === undefined && delete payload[key]
