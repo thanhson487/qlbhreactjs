@@ -191,7 +191,7 @@ const ViewData = ({
             dataSource={dataArr.filter((item) => item?.status === "waitting")}
             scroll={{
               x: 1500,
-              y: 580,
+              y: 500,
             }}
             pagination={{
               pageSize: 50,
@@ -210,7 +210,7 @@ const ViewData = ({
             dataSource={dataArr.filter((item) => item?.status === "sending")}
             scroll={{
               x: 1500,
-              y: 580,
+              y: 500,
             }}
           />
         </div>
@@ -242,7 +242,7 @@ const ViewData = ({
             dataSource={dataArr.filter((item) => item?.status === "")}
             scroll={{
               x: 1500,
-              y: 580,
+              y: 500,
             }}
           />
         </div>
