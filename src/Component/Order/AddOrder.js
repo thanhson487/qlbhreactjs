@@ -72,8 +72,14 @@ function AddOrder({
   };
   const handleFieldChange = () => {
     const price = formList.getFieldValue("price");
+    console.log('🚀 ~ price:', price)
     const fee = formList.getFieldValue("fee");
     const quantity = formList.getFieldValue("quantity");
+    if(!isEmpty(price)){
+       formList.setFieldsValue({
+        price: price.toString().replace(",", "").replace(".", ""),
+      });
+    }
     if (isEmpty(price) || isEmpty(fee) || isEmpty(quantity)) {
       formList.setFieldsValue({
         total: null,
