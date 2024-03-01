@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
-import MenuRoute from './Menu/MenuRoute'
-import { Menu, Layout, theme } from 'antd'
+import { Layout } from 'antd';
+import React, { useState } from 'react';
 import Home from './Home';
-import Product from "./Product"
+import MenuRoute from './Menu/MenuRoute';
+import Product from "./Product";
 // import { Breadcrumb, Layout, theme } from 'antd';
 
 const { Header, Content, Sider } = Layout

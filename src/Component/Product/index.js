@@ -1,19 +1,15 @@
-import { DeleteOutlined } from "@ant-design/icons";
-import { Button, Table, Tooltip, Typography } from "antd";
-import { getDatabase, onValue, ref, remove, set, get } from "firebase/database";
-import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
-import styled from "styled-components";
-import useForm from "../../Common/useForm";
-import {
-  formatCurrency,
-  formatPriceRuleListAssets,
-  formatNumberNav,
-} from "./../../Common";
-import AddProductDialog from "./AddProductDialog";
-import ListingSkeletonTable from "../../Common/ListingSkeletonTable";
-import Search from "antd/es/input/Search";
-import { filter, isEmpty } from "lodash";
+import { DeleteOutlined } from '@ant-design/icons';
+import { Button, Table, Tooltip, Typography } from 'antd';
+import Search from 'antd/es/input/Search';
+import { get, getDatabase, ref, remove, set } from 'firebase/database';
+import { filter, isEmpty } from 'lodash';
+import { useEffect, useMemo, useState } from 'react';
+import { toast } from 'react-toastify';
+import styled from 'styled-components';
+import ListingSkeletonTable from '../../Common/ListingSkeletonTable';
+import useForm from '../../Common/useForm';
+import { formatNumberNav, formatPriceRuleListAssets } from './../../Common';
+import AddProductDialog from './AddProductDialog';
 const { Title } = Typography;
 function Product() {
   const [db, setDb] = useState();
@@ -30,68 +26,81 @@ function Product() {
   const { formList, onSubmitForm, payload, resetForm } = useForm();
 
   const columns = [
+    Table.EXPAND_COLUMN,
     {
-      title: "STT",
-      key: "STT",
-      width: "80px",
-      align: "center",
+      title: 'STT',
+      key: 'STT',
+      width: '80px',
+      align: 'center',
       render: (text, object, index) => {
         return <div>{index + 1}</div>;
-      },
+      }
     },
     {
-      title: "Mã sản phẩm",
-      dataIndex: "id",
-      key: "id",
-      align: "center",
+      title: 'Mã sản phẩm',
+      dataIndex: 'id',
+      key: 'id',
+      align: 'center'
     },
     {
-      title: "Tên sản phẩm",
-      dataIndex: "productName",
-      key: "productName",
-      align: "center",
+      title: 'Tên sản phẩm',
+      dataIndex: 'productName',
+      key: 'productName',
+      align: 'center'
     },
-
     {
-      title: "Số lượng",
-      dataIndex: "total",
-      key: "total",
-      align: "center",
-      sorter: (a, b) => a.total - b.total,
-      render: (value) => {
+      title: 'Tên loại sản phẩm',
+      dataIndex: 'typeName',
+      key: 'typeName',
+      align: 'center'
+    },
+    {
+      title: 'Số lượng',
+      dataIndex: 'quantity',
+      key: 'quantity',
+      align: 'center',
+      render: value => {
         if (parseInt(value) < 20) {
           return (
-            <div style={{ textAlign: "right", color: "red" }}>
+            <div style={{ textAlign: 'right', color: 'red' }}>
               {formatPriceRuleListAssets(formatNumberNav(value.toString()))}
             </div>
           );
         } else {
           return (
-            <div style={{ textAlign: "right", color: "#1677ff" }}>
+            <div style={{ textAlign: 'right', color: '#1677ff' }}>
               {formatPriceRuleListAssets(formatNumberNav(value.toString()))}
             </div>
           );
         }
-      },
+      }
     },
     {
-      title: "Giá sản phẩm",
-      dataIndex: "price",
-      key: "price",
-      align: "center",
-      render: (value) => {
-        return (
-          <div style={{ textAlign: "right" }}>
-            {formatPriceRuleListAssets(formatNumberNav(value.toString()))}
-          </div>
-        );
-      },
+      title: 'Giá tiền',
+      dataIndex: 'price',
+      key: 'price',
+      align: 'center',
+      render: value => {
+        if (parseInt(value) < 20) {
+          return (
+            <div style={{ textAlign: 'right', color: 'red' }}>
+              {formatPriceRuleListAssets(formatNumberNav(value.toString()))}
+            </div>
+          );
+        } else {
+          return (
+            <div style={{ textAlign: 'right', color: '#1677ff' }}>
+              {formatPriceRuleListAssets(formatNumberNav(value.toString()))}
+            </div>
+          );
+        }
+      }
     },
     {
-      title: "Action",
-      dataIndex: "action",
-      key: "action",
-      align: "center",
+      title: 'Action',
+      dataIndex: 'action',
+      key: 'action',
+      align: 'center',
       render: (text, record, index) => {
         return (
           <Tooltip title="Xóa">
@@ -103,14 +112,14 @@ function Product() {
             />
           </Tooltip>
         );
-      },
-    },
+      }
+    }
   ];
   const fetchData = () => {
     setLoading(true);
-    const refers = ref(db, "product/");
+    const refers = ref(db, 'product/');
     get(refers)
-      .then((snapshot) => {
+      .then(snapshot => {
         const value = snapshot.val();
         if (value) {
           const arrValue = Object.values(value);
@@ -121,7 +130,7 @@ function Product() {
           setDataNotEdit([]);
         }
       })
-      .catch((err) => {
+      .catch(err => {
         console.error(err);
       })
       .finally(() => {
@@ -131,15 +140,10 @@ function Product() {
 
   useEffect(() => {
     if (!payload) return;
-    const { id, price, productName, total } = payload;
+    const { id } = payload;
     try {
-      const refers = ref(db, "product/" + id);
-      set(refers, {
-        id,
-        productName,
-        price: parseInt(price),
-        total: parseInt(total),
-      });
+      const refers = ref(db, 'product/' + id);
+      set(refers, payload);
 
       setDialogAddProduct(false);
       fetchData();
@@ -152,40 +156,51 @@ function Product() {
     fetchData();
   }, [db]);
 
-  const handleDeteleItem = (item) => {
-    const refers = ref(db, "product/" + item.id);
+  const handleDeteleItem = item => {
+    const refers = ref(db, 'product/' + item.id);
     remove(refers)
       .then(() => {
-        toast.success("Xóa thành công", {
-          position: "top-right",
+        toast.success('Xóa thành công', {
+          position: 'top-right',
           autoClose: 2000,
-          theme: "light",
+          theme: 'light'
         });
         fetchData();
       })
       .catch(() => {
-        toast.error("Xóa thất bại. vui lòng thử lại", {
-          position: "top-right",
+        toast.error('Xóa thất bại. vui lòng thử lại', {
+          position: 'top-right',
           autoClose: 2000,
-          theme: "light",
+          theme: 'light'
         });
       });
   };
-  const handleFillter = (e) => {
-    console.log(isEmpty(e.target.value));
+  const handleFillter = e => {
     if (isEmpty(e.target.value)) {
       setData([...dataNotEdit]);
       return;
     }
     const filterDataname = filter(
       dataNotEdit,
-      (item) =>
-        item.productName.toLowerCase().indexOf(e.target.value.toLowerCase()) >
-        -1
+      item =>
+        item.productName.toLowerCase().indexOf(e.target.value.toLowerCase()) > -1
     );
     setData([...filterDataname]);
   };
 
+  const dataSource = useMemo(() => {
+    const listProduct = [];
+    data.forEach(item => {
+      item.productTypes.forEach(itemTypeProduct => {
+        const product = {
+          ...item,
+          ...itemTypeProduct
+        };
+        listProduct.push(product);
+      });
+    });
+    return listProduct;
+  }, [data]);
   return (
     <div>
       <CustomTitle>
@@ -197,11 +212,11 @@ function Product() {
         </Button>
       </WrapperGroup>
       <div>
-        <div style={{ fontWeight: "500" }}>Tìm kiếm sản phẩm</div>
+        <div style={{ fontWeight: '500' }}>Tìm kiếm sản phẩm</div>
         <Search
           placeholder="Nhập tên sản phẩm"
           onChange={handleFillter}
-          style={{ marginTop: "20px", marginBottom: "20px" }}
+          style={{ marginTop: '20px', marginBottom: '20px' }}
         />
       </div>
       {loading ? (
@@ -211,9 +226,9 @@ function Product() {
           columns={columns}
           bordered
           pagination={false}
-          dataSource={data}
+          dataSource={dataSource}
           scroll={{
-            y: 600,
+            y: 600
           }}
         />
       )}
