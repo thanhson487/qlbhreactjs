@@ -10,6 +10,7 @@ import ListingSkeletonTable from '../../Common/ListingSkeletonTable';
 import useForm from '../../Common/useForm';
 import { formatNumberNav, formatPriceRuleListAssets } from './../../Common';
 import AddProductDialog from './AddProductDialog';
+import OrderDay from './OrderDay';
 const { Title } = Typography;
 function Product() {
   const [db, setDb] = useState();
@@ -24,7 +25,7 @@ function Product() {
 
   const [dialogAddProduct, setDialogAddProduct] = useState(false);
   const { formList, onSubmitForm, payload, resetForm } = useForm();
-
+  const [dialogOrderDay, setDialogOrderDay] = useState(false);
   const columns = [
     Table.EXPAND_COLUMN,
     {
@@ -73,7 +74,8 @@ function Product() {
             </div>
           );
         }
-      }
+      },
+      sorter: (a, b) => a.quantity - b.quantity
     },
     {
       title: 'Giá tiền',
@@ -141,10 +143,10 @@ function Product() {
   useEffect(() => {
     if (!payload) return;
     const { id } = payload;
+
     try {
       const refers = ref(db, 'product/' + id);
       set(refers, payload);
-
       setDialogAddProduct(false);
       fetchData();
       formList.resetFields();
@@ -210,6 +212,13 @@ function Product() {
         <Button type="primary" onClick={() => setDialogAddProduct(true)}>
           Thêm sản phẩm
         </Button>
+        <Button
+          type="primary"
+          className="ml-2"
+          danger
+          onClick={() => setDialogOrderDay(true)}>
+          Xuất kho
+        </Button>
       </WrapperGroup>
       <div>
         <div style={{ fontWeight: '500' }}>Tìm kiếm sản phẩm</div>
@@ -241,6 +250,13 @@ function Product() {
         dialogAddProduct={dialogAddProduct}
         setDialogAddProduct={setDialogAddProduct}
       />
+      <OrderDay
+        dataProduct={data}
+        dialogOrderDay={dialogOrderDay}
+        setDialogOrderDay={setDialogOrderDay}
+        db={db}
+        fetchData={fetchData}
+      />
     </div>
   );
 }
@@ -251,7 +267,7 @@ const CustomTitle = styled.div`
 `;
 const WrapperGroup = styled.div`
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   margin: 10px;
 `;
 const StyledTable = styled(Table)`
