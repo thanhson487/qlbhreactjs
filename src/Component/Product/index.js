@@ -11,6 +11,7 @@ import useForm from '../../Common/useForm';
 import { formatNumberNav, formatPriceRuleListAssets } from './../../Common';
 import AddProductDialog from './AddProductDialog';
 import OrderDay from './OrderDay';
+import ImportProduct from './ImportProduct';
 const { Title } = Typography;
 function Product() {
   const [db, setDb] = useState();
@@ -26,6 +27,7 @@ function Product() {
   const [dialogAddProduct, setDialogAddProduct] = useState(false);
   const { formList, onSubmitForm, payload, resetForm } = useForm();
   const [dialogOrderDay, setDialogOrderDay] = useState(false);
+  const [dialogImportProduct, setDialogImportProduct] = useState(false);
   const columns = [
     Table.EXPAND_COLUMN,
     {
@@ -209,9 +211,19 @@ function Product() {
         <Title level={3}>Danh sách sản phẩm</Title>
       </CustomTitle>
       <WrapperGroup>
-        <Button type="primary" onClick={() => setDialogAddProduct(true)}>
-          Thêm sản phẩm
-        </Button>
+        <div>
+          <Button type="primary" onClick={() => setDialogAddProduct(true)}>
+            Thêm sản phẩm
+          </Button>
+          <Button
+            shape=""
+            type="primary"
+            className="ml-2"
+            onClick={() => setDialogImportProduct(true)}>
+            Nhập kho
+          </Button>
+        </div>
+
         <Button
           type="primary"
           className="ml-2"
@@ -254,6 +266,13 @@ function Product() {
         dataProduct={data}
         dialogOrderDay={dialogOrderDay}
         setDialogOrderDay={setDialogOrderDay}
+        db={db}
+        fetchData={fetchData}
+      />
+      <ImportProduct
+        dataProduct={data}
+        dialogOrderDay={dialogImportProduct}
+        setDialogOrderDay={setDialogImportProduct}
         db={db}
         fetchData={fetchData}
       />
